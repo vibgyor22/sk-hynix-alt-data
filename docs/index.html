@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="stylesheet" href="assets/style.css?v=4">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0a0a'/%3E%3Cpath d='M2 12 L6 8 L9 10 L14 3' stroke='%23f2f2f0' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -212,6 +212,14 @@
       <div class="tablewrap" id="nand-table"><table><thead><tr><th>Month</th><th class="n">$</th><th class="n">MoM</th><th class="n">3m</th><th>Published</th><th>Source</th><th>Note</th></tr></thead><tbody></tbody></table></div>
     </details>
 
+    <details class="data" id="how-collected" open>
+      <summary>How the price rows were collected</summary>
+        <figure class="netfig">
+          <div id="prov-net"></div>
+          <figcaption>How the price rows were collected. An LLM read each press article and extracted the month's price with its source link and quote. Circle size is the number of rows from that outlet.</figcaption>
+        </figure>
+    </details>
+
     <figure class="chart" id="fig-hbm">
       <div class="fighead">
         <div class="figtitle">
@@ -388,18 +396,40 @@
       </div>
     </figure>
 
+    <figure class="chart" id="fig-next">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 4.3</div>
+          <h4>Where the next supply is coming from</h4>
+          <div class="unit">Sentinel-2, May to Oct composites, 2022 vs 2026 · same method at each site</div>
+        </div>
+      </div>
+      <div class="nextrow">
+        <div class="nexthead"><b>SK hynix Yongin</b><span>2022 · 2026 · red = forest or farmland turned to cleared ground</span></div>
+        <img src="assets/sat/fab_yongin.jpg" alt="SK hynix Yongin site in 2022, 2026 and the converted area" loading="lazy">
+        <div class="nextnote"><b>315 ha</b> converted, about <b>14x</b> the 23 ha converted at M15X by the same test.</div>
+      </div>
+      <div class="nextrow">
+        <div class="nexthead"><b>Micron, Boise, Idaho</b><span>2022 · 2026</span></div>
+        <img src="assets/sat/fab_boise.jpg" alt="Micron Boise site in 2022 and 2026" loading="lazy">
+        <div class="nextnote">A large new roof appears south-east of the old fab, with a second cleared pad beside it.</div>
+      </div>
+      <figcaption>Converted = vegetated in 2022 (NDVI above 0.35) and not vegetated in 2026 (below 0.20), largest single block, 10 m pixels, median of up to 14 cloud-free scenes per period. Code: <code>src/satellite/fab_change.py</code>. Boise is desert, so the vegetation test does not apply and it is shown as images only.</figcaption>
+    </figure>
+
     <div class="qa reveal">
       <div><h3>Question</h3><p>An upcycle ends when capacity catches up. Is M15X's capacity still to come, or already here?</p></div>
       <div><h3>What the images show</h3>
         <p>2022 to 2024: mixed texture inside the footprint, consistent with site works and a structure going up.</p>
         <p>From 2025Q2: a uniform bright roof fills the footprint and matches the finished M15 roof beside it.</p>
+        <p>Fig 4.3 adds what M15X does not show: SK hynix's next wave is Yongin, where 315 ha of forest and farmland were graded into one platform since 2022, and the first structures are visible in 2026. That site is still years from output, so it is a 2027 and later supply question.</p>
         <p>This fits the reported timeline: groundbreaking Oct 2022, cleanroom opened Oct 2025, 1b DRAM for HBM planned for early 2026.</p>
       </div>
       <div><h3>Why it matters</h3>
         <p><span class="interp">Interpretation</span>The shell was finished by about mid-2025, so M15X supply is ramping in 2026, not still to come. The DDR4 8Gb contract price rose from <b class="num-i" data-f="rampFrom"></b> (<span data-f="rampFromM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>) through that ramp. Rising prices through the ramp suggest demand has absorbed M15X's new output so far.</p>
       </div>
       <div><h3>Caveat</h3>
-        <p>10 m imagery shows the building, not tools, cleanroom fit-out, yields or wafer starts. Vegetation, built-up and brightness indices were tried and were too noisy (the site is <span data-f="satPx"></span> pixels); no capacity measure is claimed from them. Yongin is not covered yet. The price evidence is DDR4 8Gb, a commodity proxy; M15X output is HBM-oriented 1b DRAM.</p>
+        <p>10 m imagery shows the building, not tools, cleanroom fit-out, yields or wafer starts. Vegetation, built-up and brightness indices were tried and were too noisy (the site is <span data-f="satPx"></span> pixels); no capacity measure is claimed from them. The price evidence is DDR4 8Gb, a commodity proxy; M15X output is HBM-oriented 1b DRAM.</p>
         <p><span class="interp">Not verified</span>A large area north-west of M15 was cleared in 2023–24 and shows new structures in 2025–26. It may be the packaging fab confirmed for Cheongju in Jan 2026.</p>
       </div>
     </div>
@@ -454,10 +484,6 @@
     <h2>Method &amp; data sources</h2>
     <div class="cols">
       <div>
-        <figure class="netfig">
-          <div id="prov-net"></div>
-          <figcaption>How the price rows were collected. An LLM read each press article and extracted the month's price with its source link and quote. Circle size is the number of rows from that outlet.</figcaption>
-        </figure>
         <h3>Sources</h3>
         <ol>
           <li><b>Korean memory exports, HS 854232.</b> UN Comtrade monthly, <span class="mono" data-f="exFirst"></span> to Sep 2021; Korea Customs Service (KCS) from Oct 2021 to <span class="mono" data-f="exportsLastM"></span>. The two sources were checked against each other over the months where both exist before splicing.</li>
@@ -503,6 +529,6 @@
 <div class="tip" id="tip" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-<script src="assets/app.js?v=3"></script>
+<script src="assets/app.js?v=4"></script>
 </body>
 </html>

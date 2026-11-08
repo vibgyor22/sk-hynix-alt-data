@@ -1,0 +1,30 @@
+{
+ "m15x": {
+  "name": "SK hynix M15X, Cheongju",
+  "hectares": 22.9,
+  "area_km2": 7.8,
+  "valid_share": 1.0,
+  "block": "largest single converted block"
+ },
+ "yongin": {
+  "name": "SK hynix Yongin cluster",
+  "hectares": 315.4,
+  "area_km2": 25.0,
+  "valid_share": 1.0,
+  "block": "largest single converted block"
+ },
+ "pyeongtaek": {
+  "name": "Samsung Pyeongtaek",
+  "hectares": 44.3,
+  "area_km2": 25.0,
+  "valid_share": 1.0,
+  "block": "largest single converted block"
+ },
+ "boise": {
+  "name": "Micron Boise, Idaho",
+  "hectares": 1.3,
+  "area_km2": 13.0,
+  "valid_share": 1.0,
+  "block": "largest single converted block"
+ }
+}
