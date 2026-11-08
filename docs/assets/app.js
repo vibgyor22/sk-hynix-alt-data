@@ -759,7 +759,7 @@
     const fig1 = $("#fig-price"), fig2 = $("#fig-mom");
     const C = D.contract, EM = D.exports_monthly, EQ = D.exports_quarterly, R = D.retail;
     const startM = "2024-08";
-    const st = { freq: "M", on: { contract: true, export: true, ddr4: true, ddr5: true } };
+    const st = { freq: "M", on: { contract: true, export: true, ddr4: false, ddr5: false } };
 
     // monthly raw series
     const mC = C.map((r) => ({ k: r.month, v: r.avg_usd, src: r }));

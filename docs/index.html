@@ -54,7 +54,7 @@
       <div>
         <h3>Implications for the thesis</h3>
         <ul>
-          <li>SK hynix's earnings move with memory prices more than with volume, so the position is a call on how long pricing holds. The data says it is still holding.</li>
+          <li>Korean memory export growth is mostly price, and SK hynix revenue tracks those exports closely, so the position is a call on how long pricing holds. The data says it is still holding.</li>
           <li>Commodity momentum is well off its peak, but the HBM proxy is still re-pricing upward (HBM4). The case moves from commodity price gains to HBM mix, which TrendForce expects to re-price further in 2027.</li>
           <li>The main supply risk (M15X) is already in the market and being absorbed, which pushes the oversupply question to 2027.</li>
           <li>Monitoring: the monthly customs print and month-end contract price give an early read on each quarter. A negative 3-month price change is the trigger to reduce.</li>
@@ -150,7 +150,7 @@
         <p>On the plain DRAM line it went from <span class="num-i" data-f="dramUvPrior"></span> to <b class="num-i" data-f="dramUv"></b> (<span class="num-i" data-f="dramMult"></span>). DRAM contributed <span class="num-i" data-f="dramContrib"></span> of the value growth, composite-chip ICs <span class="num-i" data-f="compContrib"></span>.</p>
       </div>
       <div><h3>Why it matters</h3>
-        <p><span class="interp">Interpretation</span>Value up <span class="num-i" data-f="valMult"></span> while weight rose <span class="num-i" data-f="wtYoy"></span> is pricing power, not volume. Because the commodity DRAM line re-priced too, the gain is not limited to HBM and other premium parts.</p>
+        <p><span class="interp">Interpretation</span>Value up <span class="num-i" data-f="valMult"></span> while weight rose <span class="num-i" data-f="wtYoy"></span> means the growth came mainly from higher prices per chip or a shift to pricier chips. Because the commodity DRAM line re-priced too, the gain is not limited to HBM and other premium parts.</p>
         <p>Pricing power shows up in SK hynix's profitability: its operating margin correlates <b class="num-i" data-f="corrMargin"></b> with YoY export unit-value growth (n = <span data-f="corrMarginN"></span> quarters).</p>
       </div>
       <div><h3>Caveat</h3>
@@ -168,7 +168,7 @@
       <div>
         <div class="tag">Peak risk</div>
         <h2>Is the price cycle peaking?</h2>
-        <div class="verdict">Still rising, more slowly. Two independent sources agree.</div>
+        <div class="verdict">Still rising, more slowly. Two sources with different methods agree.</div>
       </div>
     </div>
 
@@ -176,7 +176,7 @@
       <div class="fighead">
         <div class="figtitle">
           <div class="fid">FIG 2.1</div>
-          <h4>Contract price, export unit value and retail, on one base</h4>
+          <h4>Memory prices: contract price vs export unit value</h4>
           <div class="unit" data-unit>Index, Jan 2025 = 100 · log scale</div>
         </div>
         <div class="controls">
@@ -187,7 +187,7 @@
       </div>
       <div class="chips" data-chips aria-label="Series"></div>
       <div class="plot" data-plot></div>
-      <figcaption>Different units, so each series is indexed to its own Jan 2025 (or 2025Q1) level. Hover for the raw value and source. Contract: DDR4 8Gb 1Gx8 monthly fixed price (DRAMeXchange, as reported by Korean press). Export unit value: HS 854232, 3-month sums. Retail: Keepa $/GB from the Stanford DAM memory-price dataset, a secondary consumer cross-check only.</figcaption>
+      <figcaption>Contract price: what large buyers such as PC and server makers pay for one chip, the DDR4 8Gb (DRAMeXchange, as reported by Korean press). Export unit value: the average dollars per gram across all Korean memory chip exports (HS 854232, 3-month sums). Retail, switched off by default: what consumers pay for memory sticks online (Keepa, via the Stanford DAM dataset). Each line is set to 100 in January 2025 so you can compare how fast they rose. The scale is logarithmic, so equal gaps mean equal percentage changes.</figcaption>
     </figure>
 
     <figure class="chart" id="fig-mom">
@@ -235,8 +235,8 @@
         <p>HBM proxy: exports to Taiwan were <b class="num-i" data-f="hbmValue"></b> in <span data-f="hbmQ"></span> (<span class="num-i" data-f="hbmYoy"></span> YoY) at <b class="num-i" data-f="hbmUv"></b>/g, against <span class="num-i" data-f="hbmUvPrior"></span>/g a year earlier and <span class="num-i" data-f="hbmChinaUv"></span>/g for China. The composite-chip line to Taiwan went from <span class="num-i" data-f="hbmCompFirst"></span> to <b class="num-i" data-f="hbmCompLast"></b>/g since <span data-f="hbmCompQ"></span>.</p>
       </div>
       <div><h3>Why it matters</h3>
-        <p><span class="interp">Interpretation</span>Deceleration from a very high rate is expected late in an upcycle. A peak in prices needs momentum below zero, and neither series is there. Two sources with different methods show the same shape.</p>
-        <p>The commodity cycle is slowing, but the HBM proxy is still re-pricing upward, consistent with the shift to HBM4. HBM is the higher-margin part of SK hynix's mix, so it partly offsets the commodity slowdown.</p>
+        <p><span class="interp">Interpretation</span>Deceleration from a very high rate is expected late in an upcycle. A turn in prices would show as momentum below zero, and neither series is there yet. Two sources with different methods show the same shape.</p>
+        <p>The commodity cycle is slowing, but the HBM proxy is still re-pricing upward, consistent with the shift to HBM4. HBM is SK hynix's higher-margin product, so growth there can offset the commodity slowdown.</p>
       </div>
       <div><h3>Caveat</h3>
         <p>DDR4 8Gb is a legacy part, a proxy for the commodity market. Contract figures come from press reports of DRAMeXchange data. Retail $/GB is noisy.</p>
@@ -254,7 +254,7 @@
       <div>
         <div class="tag">Earnings lead</div>
         <h2>Do customs exports read the quarter early?</h2>
-        <p class="lede">SK hynix revenue moves with Korean memory exports: correlation <b class="num-i" data-f="corrQoq"></b> quarter on quarter and <b class="num-i" data-f="corrYoy"></b> year on year, with a fitted slope of <b class="num-i" data-f="corrSlope"></b> (one-for-one). Two months into a quarter, Korean customs data has called the direction of SK hynix revenue correctly in <b class="num-i"><span data-f="hitsM2"></span> of <span data-f="nQtd"></span></b> quarters, with <b class="num-i" data-f="mapeM2"></b> average error, <span data-f="leadM2W"></span> before results.</p>
+        <p class="lede">SK hynix revenue moves with Korean memory exports: correlation <b class="num-i" data-f="corrQoq"></b> quarter on quarter and <b class="num-i" data-f="corrYoy"></b> year on year, with a fitted slope of <b class="num-i" data-f="corrSlope"></b>, roughly one-for-one. Two months into a quarter, Korean customs data has called the direction of SK hynix revenue correctly in <b class="num-i"><span data-f="hitsM2"></span> of <span data-f="nQtd"></span></b> quarters, with <b class="num-i" data-f="mapeM2"></b> average error, <span data-f="leadM2W"></span> before results.</p>
         <div class="verdict">Direction: reliable. Level: can miss by up to <span data-f="worstM2"></span>.</div>
       </div>
     </div>
@@ -275,19 +275,19 @@
         </div>
       </div>
       <div class="plot" data-plot></div>
-      <figcaption>Each dot is a quarter. Exports are converted to KRW at monthly USD/KRW. Dashed line: one-for-one (slope 1). Solid line: least-squares fit, slope <span data-f="corrSlope"></span>. A slope near 1 is why the forecast below needs no fitted parameters. Correlation is not causation: both series respond to the same memory prices. Exports include Samsung, and SK hynix's China fabs are not in Korean customs data.</figcaption>
+      <figcaption>Each dot is a quarter. Exports are converted to KRW at monthly USD/KRW. Dashed line: one-for-one (slope 1). Solid line: least-squares fit, slope <span data-f="corrSlope"></span>. The forecast below assumes revenue moves one-for-one with exports, so it has no fitted parameters. Correlation is not causation: both series respond to the same memory prices. Exports include Samsung, and SK hynix's China fabs are not in Korean customs data.</figcaption>
     </figure>
 
     <figure class="chart" id="fig-err">
       <div class="fighead">
         <div class="figtitle">
           <div class="fid">FIG 3.1</div>
-          <h4>Error falls as the quarter fills in</h4>
+          <h4>Average error falls as the quarter fills in</h4>
           <div class="unit">Mean absolute % error, <span data-f="nQtd"></span> quarters · tick = worst quarter</div>
         </div>
       </div>
       <div class="plot" data-plot></div>
-      <figcaption>Rule after k months: last quarter's revenue × exports in the first k months of this quarter ÷ exports in the same months of last quarter. No fitted parameters. Exports in KRW at Yahoo month-end USD/KRW. Dashed line: baseline that repeats last quarter's revenue growth. Code: <span class="mono">src/analysis/quarter_to_date_forecast.py</span>.</figcaption>
+      <figcaption>Rule after k months: last quarter's revenue × exports in the first k months of this quarter ÷ exports in the same months of last quarter. The rule has no fitted parameters: its form was chosen on this same history. Exports in KRW at Yahoo month-end USD/KRW. Dashed line: baseline that repeats last quarter's revenue growth. Code: <span class="mono">src/analysis/quarter_to_date_forecast.py</span>.</figcaption>
     </figure>
 
     <figure class="chart" id="fig-nowcast">
@@ -390,7 +390,7 @@
         <p>This fits the reported timeline: groundbreaking Oct 2022, cleanroom opened Oct 2025, 1b DRAM for HBM planned for early 2026.</p>
       </div>
       <div><h3>Why it matters</h3>
-        <p><span class="interp">Interpretation</span>The shell was finished by about mid-2025, so M15X supply is ramping in 2026, not still to come. The DDR4 8Gb contract price rose from <b class="num-i" data-f="rampFrom"></b> (<span data-f="rampFromM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>) through that ramp. So far, demand has absorbed M15X's new output.</p>
+        <p><span class="interp">Interpretation</span>The shell was finished by about mid-2025, so M15X supply is ramping in 2026, not still to come. The DDR4 8Gb contract price rose from <b class="num-i" data-f="rampFrom"></b> (<span data-f="rampFromM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>) through that ramp. Rising prices through the ramp suggest demand has absorbed M15X's new output so far.</p>
       </div>
       <div><h3>Caveat</h3>
         <p>10 m imagery shows the building, not tools, cleanroom fit-out, yields or wafer starts. Vegetation, built-up and brightness indices were tried and were too noisy (the site is <span data-f="satPx"></span> pixels); no capacity measure is claimed from them. Yongin is not covered yet. The price evidence is DDR4 8Gb, a commodity proxy; M15X output is HBM-oriented 1b DRAM.</p>
@@ -411,10 +411,10 @@
       </div>
     </div>
     <ol class="concl-list reveal">
-      <li><b>Earnings are price-driven, and visible early.</b> Korean memory export value is <span class="num-i" data-f="valMult"></span> a year ago on <span class="num-i" data-f="wtYoy"></span> weight. SK hynix revenue moves one-for-one with these exports (correlation <span class="num-i" data-f="corrQoq"></span> QoQ, <span class="num-i" data-f="corrYoy"></span> YoY), so customs data reads each quarter about two months in (<span data-f="hitsM2"></span>/<span data-f="nQtd"></span> direction calls).</li>
+      <li><b>Earnings are price-driven, and visible early.</b> Korean memory export value is <span class="num-i" data-f="valMult"></span> a year ago on <span class="num-i" data-f="wtYoy"></span> weight. SK hynix revenue tracks these exports roughly one-for-one (correlation <span class="num-i" data-f="corrQoq"></span> QoQ, <span class="num-i" data-f="corrYoy"></span> YoY), so customs data reads each quarter about two months in (<span data-f="hitsM2"></span>/<span data-f="nQtd"></span> direction calls).</li>
       <li><b>Commodity DRAM has moved from accelerator to support.</b> Contract prices are still rising (<span class="num-i" data-f="m3Last"></span> over 3 months), far below the <span class="num-i" data-f="m3Peak"></span> peak. It keeps margins high but will add less growth from here.</li>
       <li><b>HBM is taking over as the growth driver.</b> The HBM proxy is re-pricing upward: <span class="num-i" data-f="hbmUvPrior"></span> → <span class="num-i" data-f="hbmUv"></span> per gram YoY, consistent with the HBM4 shift. TrendForce expects blended HBM prices to rise a further 121% in 2027. HBM is where SK hynix leads.</li>
-      <li><b>New capacity is being absorbed.</b> M15X is built and ramping, and prices kept rising through the ramp. The current market shows no sign of oversupply.</li>
+      <li><b>New capacity is being absorbed.</b> M15X is built and ramping, and prices kept rising through the ramp. So far, prices show no sign of oversupply.</li>
     </ol>
     <p class="concl-verdict reveal"><b>Outlook:</b> constructive into 2027. Growth should slow from 2026's pace as commodity price gains fade, but stay positive as the mix shifts toward HBM, SK hynix's strongest product, while new supply is absorbed.</p>
   </div>
@@ -465,21 +465,21 @@
           <li>Unit value = value ÷ weight, with value and weight summed over the period first. Monthly averages of unit value are never used.</li>
           <li>YoY split: ln(V₁/V₀) = ln(W₁/W₀) + ln(UV₁/UV₀). Exact by construction.</li>
           <li>Momentum = level vs 3 months earlier. Missing months stay blank; nothing is filled.</li>
-          <li>The quarter-to-date forecast has no fitted parameters. Code: <code>src/analysis/quarter_to_date_forecast.py</code>. Site data: <code>src/site/export_site_data.py</code>, which re-checks its figures against the analysis outputs.</li>
+          <li>The quarter-to-date forecast has no fitted parameters. It uses last quarter's revenue and the export ratio directly, and its form was picked on the same 18 quarters it is tested on. Code: <code>src/analysis/quarter_to_date_forecast.py</code>. Site data: <code>src/site/export_site_data.py</code>, which re-checks its figures against the analysis outputs.</li>
         </ul>
       </div>
       <div>
         <h3>Limitations</h3>
         <ul>
           <li><b>HS 854232 includes Samsung</b> and every other Korean memory exporter. It is a market signal, not an SK hynix signal.</li>
-          <li><b>Unit value is not a price.</b> Product mix (HBM, high-capacity modules) moves it as much as pricing does.</li>
+          <li><b>Unit value is not a price.</b> Product mix (HBM, high-capacity modules) moves it too.</li>
           <li><b>DDR4 8Gb is a legacy part.</b> It shows the commodity market, not HBM or server DDR5 contracts.</li>
           <li><b>Small sample.</b> <span data-f="nQtd"></span> backtest quarters. Direction is called well; the level can miss by up to <span data-f="worstM2"></span>.</li>
-          <li>Customs figures are current revised values, so the backtest is not a true real-time test.</li>
+          <li>Customs figures are today's revised values, so the backtest tests the method on revised data rather than live releases.</li>
           <li>SK hynix's China fabs ship from China and are not in Korean customs data.</li>
           <li><span data-f="ncQ"></span> revenue is preliminary. The two financial files differ by <span class="mono" data-f="revDiff"></span> on that quarter; the site uses the company figure in <code>data/financials/skhynix_quarterly.csv</code>, as the forecast does.</li>
           <li><b>Satellite imagery at 10 m</b> shows the building, not tools or wafer output. Index-based metrics (NDVI, NDBI, brightness) were too noisy and are not shown or claimed.</li>
-          <li><b>LLM use.</b> Used only to extract dated facts (prices, quotes, construction milestones) from source documents. A person approved every extracted row. No LLM-generated numbers.</li>
+          <li><b>LLM use.</b> Used only to extract dated facts (prices, quotes, construction milestones) from source documents. Each extracted row links to its source and quote. No LLM-generated numbers.</li>
         </ul>
       </div>
     </div>
