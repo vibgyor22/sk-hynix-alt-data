@@ -393,3 +393,8 @@ footer li code, .mono { font-family: var(--mono); font-size: 12px; color: var(--
 .nextrow img { display: block; width: 100%; height: auto; border-radius: 4px; }
 .nextnote { margin-top: 8px; font-size: 14px; }
 .nextrow:nth-of-type(2) img { max-width: 760px; }
+
+/* Top-bar link to the valuation workbook */
+.dcfbtn { flex: none; font-family: var(--mono); font-size: 12px; color: var(--ink); text-decoration: none; white-space: nowrap; padding: 6px 12px; border: 1px solid var(--ink-2, currentColor); border-radius: 4px; }
+.dcfbtn:hover { background: var(--ink); color: var(--bg, #fff); }
+@media (max-width: 560px) { .dcfbtn { padding: 5px 9px; font-size: 11px; } .brand { display: none; } }
