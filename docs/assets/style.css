@@ -76,9 +76,15 @@ a:hover { text-decoration-color: var(--accent); }
 .titlebar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; border-bottom: 1px solid var(--rule); padding-bottom: 14px; }
 .hero-plain h1 { font-size: clamp(24px, 2.6vw, 32px); font-weight: 500; letter-spacing: -.02em; line-height: 1.15; max-width: none; margin: 0; }
 .titlebar .meta { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin: 0; letter-spacing: .02em; }
-.abstract { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; padding: 16px 0 18px; }
-.abstract > div { padding-right: 24px; min-width: 0; }
-.abstract > div + div { padding-left: 24px; padding-right: 0; border-left: 1px solid var(--rule); }
+.abstract { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 16px 0 18px; }
+.abstract > div { padding: 0 22px; min-width: 0; }
+.abstract > div:first-child { padding-left: 0; }
+.abstract > div:last-child { padding-right: 0; }
+.abstract > div + div { border-left: 1px solid var(--rule); }
+@media (max-width: 1000px) {
+  .abstract { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .abstract > div:last-child { grid-column: 1 / -1; padding: 12px 0 0; margin-top: 10px; border-left: 0; border-top: 1px solid var(--rule); }
+}
 .abstract h3 { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
 .abstract ul { margin: 0; padding-left: 16px; }
 .abstract li { font-size: 14.5px; color: var(--ink-2); margin: 0 0 5px; line-height: 1.45; }
