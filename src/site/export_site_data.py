@@ -351,6 +351,35 @@ def build_satellite():
 
 
 # ---------------------------------------------------------------- main
+def build_hbm():
+    """HBM proxy: Korean memory exports by destination (Taiwan = TSMC CoWoS packaging), from src/analysis/hbm_proxy.py."""
+    d = pd.read_csv(ROOT / "data/processed/korean_exports/quarterly_by_destination.csv")
+    t = pd.read_csv(ROOT / "data/processed/korean_exports/taiwan_by_line_quarterly.csv")
+    out = {"partners": ["Taiwan", "China", "Hong Kong", "Vietnam", "Rest"], "quarterly": {}}
+    for prt in out["partners"]:
+        x = d[d.partner == prt].sort_values("quarter")
+        out["quarterly"][prt] = [{"q": r["quarter"], "v": rnd(r["value_usd"], 0), "w": rnd(r["weight_kg"], 0),
+                                  "uv": rnd(r["usd_per_g"], 3), "share": rnd(r["value_share_%"], 2)} for r in x.to_dict("records")]
+    out["taiwan_lines"] = [{"q": r["quarter"], "line": r["line"], "v": rnd(r["value_usd"], 0), "uv": rnd(r["usd_per_g"], 3),
+                            "share": rnd(r["share_of_taiwan_value_%"], 2)} for r in t.to_dict("records")]
+    tw = d[d.partner == "Taiwan"].set_index("quarter").sort_index()
+    ch = d[d.partner == "China"].set_index("quarter").sort_index()
+    lq = tw.index[-1]
+    pq = tw.index[list(tw.index).index(lq) - 4]
+    comp = t[t.line == "Composite-chip ICs"].set_index("quarter")
+    pre = tw.loc[:"2024Q1"]
+    out["headline"] = {
+        "last_q": lq, "prior_q": pq, "value_usd": tw.value_usd[lq], "yoy_value_pct": (tw.value_usd[lq] / tw.value_usd[pq] - 1) * 100,
+        "usd_per_g": tw.usd_per_g[lq], "usd_per_g_prior": tw.usd_per_g[pq],
+        "china_usd_per_g": ch.usd_per_g[lq], "share_last": tw["value_share_%"][lq],
+        "share_pre2024_avg": pre.loc["2021Q1":]["value_share_%"].mean(), "share_peak": tw["value_share_%"].max(),
+        "share_peak_q": tw["value_share_%"].idxmax(),
+        "comp_first_q": comp.index[0], "comp_uv_first": comp.usd_per_g.iloc[0], "comp_uv_last": comp.usd_per_g.iloc[-1],
+        "comp_share_of_taiwan_last": comp["share_of_taiwan_value_%"].iloc[-1],
+    }
+    return out
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     monthly, quarterly, r3, q = build_exports()
@@ -369,6 +398,11 @@ def main():
     write("retail.json", retail)
     write("financials.json", fin)
     write("satellite.json", sat)
+    hbm = build_hbm()
+    write("hbm.json", hbm)
+    print(f"  HBM proxy {hbm['headline']['last_q']}: Taiwan ${hbm['headline']['value_usd']/1e9:.1f}bn, "
+          f"${hbm['headline']['usd_per_g']:.0f}/g vs China ${hbm['headline']['china_usd_per_g']:.0f}/g; "
+          f"composite line to Taiwan ${hbm['headline']['comp_uv_first']:.0f} -> ${hbm['headline']['comp_uv_last']:.0f}/g")
 
     # ------------------------------------------------ headline numbers (all computed here)
     lq = q.dropna(subset=["value_usd"]).index[-1]

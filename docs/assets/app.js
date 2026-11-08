@@ -24,6 +24,8 @@
     pct0s: (v) => sign(v) + Math.abs(Math.round(v)) + "%",
     pct1s: (v) => sign(v) + Math.abs(v).toFixed(1) + "%",
     usd2: (v) => "$" + v.toFixed(2),
+    usd0: (v) => "$" + Math.round(v),
+    usdbn: (v) => "$" + v.toFixed(1) + "bn",
     tn1: (v) => "₩" + (v / 1e6).toFixed(1) + "tn",
     tn0a: (v) => "~₩" + Math.round(v / 1e6) + "tn",
     f2: (v) => v.toFixed(2),
@@ -295,7 +297,7 @@
   }
 
   // ------------------------------------------------------------------ load
-  const FILES = ["meta", "exports_monthly", "exports_quarterly", "lines", "contract", "retail", "financials", "satellite"];
+  const FILES = ["meta", "exports_monthly", "exports_quarterly", "lines", "contract", "retail", "financials", "satellite", "hbm"];
   Promise.all(FILES.map((f) => fetch(`data/${f}.json`).then((r) => { if (!r.ok) throw new Error(f + ": " + r.status); return r.json(); })))
     .then((arr) => { const D = {}; FILES.forEach((f, i) => { D[f] = arr[i]; }); init(D); })
     .catch((e) => {
@@ -311,6 +313,8 @@
     charts.push(...splitChart(D));
     charts.push(mixChart(D));
     charts.push(...priceCharts(D));
+    const hc = hbmChart(D);
+    if (hc) charts.push(hc);
     charts.push(...nowcastCharts(D));
     const sat = satellite(D);
     if (sat) charts.push(sat);
@@ -410,6 +414,8 @@
     const sc = Object.fromEntries(D.financials.scorecard.map((s) => [s.model, s]));
     const rd = D.financials.revenue_file_differences[0];
     const S = D.meta.series;
+    const H = D.hbm.headline, TW = D.hbm.quarterly.Taiwan;
+    const hbmQoq = (TW[TW.length - 1].uv / TW[TW.length - 2].uv - 1) * 100;
     return {
       eQ: [e.quarter, "q"], ePQ: [e.prior_quarter, "q"],
       valMult: [e.value_multiple, "x2"], valYoy: [e.yoy_value_pct, "pct1s"], wtYoy: [e.yoy_weight_pct, "pct1s"],
@@ -438,8 +444,14 @@
       satMinClear: [D.satellite.min_site_clear * 100, "pct0"],
       satPx: [D.satellite.site_pixels, "int"],
       satKm: [D.satellite.extent_km.ew.toFixed(1) + " × " + D.satellite.extent_km.ns.toFixed(1) + " km", "str"],
+      // HBM proxy (exports to Taiwan)
+      hbmQ: [H.last_q, "q"], hbmValue: [H.value_usd / 1e9, "usdbn"], hbmYoy: [H.yoy_value_pct, "pct0s"],
+      hbmUv: [H.usd_per_g, "usd0"], hbmUvPrior: [H.usd_per_g_prior, "usd0"], hbmChinaUv: [H.china_usd_per_g, "usd0"],
+      hbmCompFirst: [H.comp_uv_first, "usd0"], hbmCompLast: [H.comp_uv_last, "usd0"], hbmCompQ: [H.comp_first_q, "q"],
+      hbmCompShare: [H.comp_share_of_taiwan_last, "pct0"], hbmQoq: [hbmQoq, "pct1s"],
       // states for the kill-signal table
       _state: {
+        hbmQoq: hbmQoq < 0,
         m3Last: c.mom3_last_pct < 0, uvmLast: u.last_pct < 0,
         mixShift: e.yoy_uv_pct < e.yoy_weight_pct, dramQoq: e.dram_uv_qoq_pct < 0,
       },
@@ -661,6 +673,42 @@
     seg("mix-metric", (v) => { st.metric = v; setUnit(); chart.render(true); });
     seg("mix-freq", (v) => { st.freq = v; setUnit(); chart.render(true); });
     setUnit();
+    return { el: fig, render: chart.render, reveal: chart.reveal };
+  }
+
+  // ------------------------------------------------------------------ FIG 2.3 HBM proxy (exports by destination)
+  function hbmChart(D) {
+    const fig = $("#fig-hbm"); if (!fig || !D.hbm) return null;
+    const el = $("[data-plot]", fig), H = D.hbm;
+    const style = {
+      "Taiwan": { cls: "s-accent", dash: "", width: 2.4 }, "China": { cls: "s-ink", dash: "" },
+      "Hong Kong": { cls: "s-grey", dash: "s-dash" }, "Vietnam": { cls: "s-dim", dash: "s-dot" }, "Rest": { cls: "s-dim", dash: "s-dash" },
+    };
+    const st = { metric: "uv", on: { "Taiwan": true, "China": true, "Hong Kong": false, "Vietnam": true, "Rest": false } };
+    const MET = {
+      uv: { f: (p) => p.uv, unit: "$ per gram, quarterly", fmt: (v) => "$" + v.toFixed(0) + "/g", axis: (v) => "$" + v },
+      v: { f: (p) => p.v / 1e9, unit: "Export value, $bn per quarter", fmt: (v) => "$" + v.toFixed(1) + "bn", axis: (v) => "$" + v },
+      share: { f: (p) => p.share, unit: "Share of Korean memory export value, %", fmt: (v) => v.toFixed(0) + "%", axis: (v) => v + "%" },
+    };
+    const series = () => H.partners.map((g) => ({
+      id: g, label: g, short: g, cls: style[g].cls, dash: style[g].dash, width: style[g].width, on: st.on[g], sig: st.metric,
+      points: H.quarterly[g].filter((p) => p.q >= "2021Q1").map((p) => ({ d: pq(p.q), y: p.w ? MET[st.metric].f(p) : null, raw: p })),
+    }));
+    const chart = LineChart(el, {
+      aria: "Korean memory exports by destination",
+      height: (w) => Math.max(280, Math.min(460, w * 0.42)), mr: 120, includeZero: true,
+      series, yFmt: (v) => MET[st.metric].axis(v), endFmt: (p) => MET[st.metric].fmt(p.y),
+      annotations: () => (st.metric === "uv" ? [{ key: "hbm", d: pq("2024Q2"), y: H.quarterly.Taiwan.find((p) => p.q === "2024Q2").uv, text: "HBM3e ramp", dy: -26 }] : []),
+      tip: (d, S) => {
+        const any = S.map((s) => s.byT.get(+d)).find(Boolean);
+        return tipHtml(qLabel(any.raw.q), S.map((s) => { const p = s.byT.get(+d); return [s.label, p && p.y != null ? MET[st.metric].fmt(p.y) : "–", s]; }),
+          "UN Comtrade to 2025Q3, Korea Customs from 2025Q4 · HS 854232");
+      },
+    });
+    const unit = $("[data-unit]", fig);
+    chips($("[data-chips]", fig), H.partners.map((g) => ({ id: g, label: g, cls: style[g].cls, dash: style[g].dash, on: st.on[g] })),
+      (id, on) => { st.on[id] = on; chart.render(true); });
+    seg("hbm-metric", (v) => { st.metric = v; unit.textContent = MET[v].unit; chart.render(true); });
     return { el: fig, render: chart.render, reveal: chart.reveal };
   }
 

@@ -46,6 +46,7 @@
         <ul>
           <li>Export value <b class="num-i" data-f="valMult"></b> YoY in <span data-f="eQ"></span>, weight <span class="num-i" data-f="wtYoy"></span>: <span class="num-i" data-f="uvShare"></span> of growth is unit value.</li>
           <li>Contract price <span class="num-i" data-f="cFirst"></span> → <b class="num-i" data-f="cLast"></b>; 3-month change down from <span class="num-i" data-f="m3Peak"></span> to <b class="num-i" data-f="m3Last"></b>. Slowing, still positive.</li>
+          <li>HBM proxy (exports to Taiwan): <b class="num-i" data-f="hbmValue"></b> in <span data-f="hbmQ"></span>, <span class="num-i" data-f="hbmUvPrior"></span> → <b class="num-i" data-f="hbmUv"></b> per gram YoY. Still re-pricing.</li>
           <li>After month 2, the rule called the direction of revenue right in <b class="num-i"><span data-f="hitsM2"></span>/<span data-f="nQtd"></span></b> quarters, <span class="num-i" data-f="mapeM2"></span> mean error.</li>
           <li>M15X shell looks complete from about 2025Q2; prices kept rising through its 2026 ramp.</li>
         </ul>
@@ -54,7 +55,7 @@
         <h3>Implications for the thesis</h3>
         <ul>
           <li>SK hynix's earnings move with memory prices more than with volume, so the position is a call on how long pricing holds. The data says it is still holding.</li>
-          <li>Momentum is well off its peak: returns from here depend on prices staying high, not on further acceleration. That argues for sizing as a late-cycle position.</li>
+          <li>Commodity momentum is well off its peak, but the HBM proxy is still re-pricing upward (HBM4). The case moves from commodity price gains to HBM mix, which TrendForce expects to re-price further in 2027.</li>
           <li>The main supply risk (M15X) is already in the market and being absorbed, which pushes the oversupply question to 2027.</li>
           <li>Monitoring: the monthly customs print and month-end contract price give an early read on each quarter. A negative 3-month price change is the trigger to reduce.</li>
         </ul>
@@ -206,18 +207,39 @@
       <div class="tablewrap"><table><thead><tr><th>Month</th><th class="n">$</th><th class="n">MoM</th><th class="n">3m</th><th>Published</th><th>Source</th><th>Note</th></tr></thead><tbody></tbody></table></div>
     </details>
 
+    <figure class="chart" id="fig-hbm">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 2.3</div>
+          <h4>HBM proxy: Korean memory exports to Taiwan vs other destinations</h4>
+          <div class="unit" data-unit>$ per gram, quarterly</div>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Metric" data-ctl="hbm-metric">
+            <button aria-pressed="true" data-v="uv">$/g</button><button aria-pressed="false" data-v="v">Value</button><button aria-pressed="false" data-v="share">Share</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips" data-chips aria-label="Destinations"></div>
+      <div class="plot" data-plot></div>
+      <figcaption>HBM has no public price; it is sold under private contracts. HBM stacks made in Korea ship to Taiwan for packaging with GPUs (TSMC CoWoS), while commodity DRAM and NAND mostly go to China, Hong Kong and Vietnam. So the Taiwan flow is the closest public read on HBM. In Korea Customs' HS10 detail, <span data-f="hbmCompShare"></span> of Taiwan's value in <span data-f="hbmQ"></span> was the composite-chip line (multi-chip packages). Source: UN Comtrade by partner to Dec 2025 ("Other Asia, nes" = Taiwan), Korea Customs by country from Oct 2025; the two match exactly on the overlap.</figcaption>
+    </figure>
+
     <div class="qa reveal">
       <div><h3>Question</h3><p>Prices are up a lot. Is the rate of increase rolling over?</p></div>
       <div><h3>What the data shows</h3>
         <p>DDR4 8Gb contract: <span class="num-i" data-f="cFirst"></span> (<span data-f="cFirstM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>).</p>
         <p>Its 3-month change peaked at <span class="num-i" data-f="m3Peak"></span> in <span data-f="m3PeakM"></span>; it is <b class="num-i" data-f="m3Last"></b> in <span data-f="m3LastM"></span>.</p>
         <p>Export unit-value momentum peaked at <span class="num-i" data-f="uvmPeak"></span> (<span data-f="uvmPeakM"></span>); it is <b class="num-i" data-f="uvmLast"></b> (<span data-f="uvmLastM"></span>).</p>
+        <p>HBM proxy: exports to Taiwan were <b class="num-i" data-f="hbmValue"></b> in <span data-f="hbmQ"></span> (<span class="num-i" data-f="hbmYoy"></span> YoY) at <b class="num-i" data-f="hbmUv"></b>/g, against <span class="num-i" data-f="hbmUvPrior"></span>/g a year earlier and <span class="num-i" data-f="hbmChinaUv"></span>/g for China. The composite-chip line to Taiwan went from <span class="num-i" data-f="hbmCompFirst"></span> to <b class="num-i" data-f="hbmCompLast"></b>/g since <span data-f="hbmCompQ"></span>.</p>
       </div>
       <div><h3>Why it matters</h3>
         <p><span class="interp">Interpretation</span>Deceleration from a very high rate is expected late in an upcycle. A peak in prices needs momentum below zero, and neither series is there. Two sources with different methods show the same shape.</p>
+        <p>The commodity cycle is slowing, but the HBM proxy is still re-pricing upward, consistent with the shift to HBM4. HBM is the higher-margin part of SK hynix's mix, so it partly offsets the commodity slowdown.</p>
       </div>
       <div><h3>Caveat</h3>
-        <p>DDR4 8Gb is a legacy part, a proxy for the commodity market, not for HBM or DDR5 server pricing. Contract figures come from press reports of DRAMeXchange data. Retail $/GB is noisy, and retail DDR4 has not tracked the contract price.</p>
+        <p>DDR4 8Gb is a legacy part, a proxy for the commodity market. Contract figures come from press reports of DRAMeXchange data. Retail $/GB is noisy.</p>
+        <p>The HBM proxy assumes the Taiwan composite-chip flow is mostly HBM; customs does not label it. It includes Samsung, and $/g mixes price with product generation (HBM3e → HBM4).</p>
       </div>
     </div>
   </div>
@@ -378,6 +400,7 @@
           <tr><td>Export unit-value momentum turns negative</td><td>3-month change &lt; 0%</td><td class="n"><span data-f="uvmLast"></span> · <span data-f="uvmLastM"></span></td><td><span class="state" data-state="uvmLast"></span></td></tr>
           <tr><td>Growth shifts from price to volume: weight up, unit value flat</td><td>YoY unit value &lt; YoY weight</td><td class="n">UV <span data-f="uvYoyQ"></span> · wt <span data-f="wtYoy"></span></td><td><span class="state" data-state="mixShift"></span></td></tr>
           <tr><td>Commodity DRAM stops re-pricing; only premium lines rise</td><td>DRAM-line $/g QoQ &lt; 0</td><td class="n"><span data-f="dramQoq"></span> · <span data-f="eQ"></span></td><td><span class="state" data-state="dramQoq"></span></td></tr>
+          <tr><td>HBM stops re-pricing: Taiwan export $/g falls</td><td>HBM-proxy $/g QoQ &lt; 0</td><td class="n"><span data-f="hbmQoq"></span> · <span data-f="hbmQ"></span></td><td><span class="state" data-state="hbmQoq"></span></td></tr>
           <tr><td>New supply outruns demand: prices fall as M15X ramps</td><td>Contract 3m change &lt; 0% during the ramp</td><td class="n"><span data-f="rampFrom"></span> → <span data-f="cLast"></span> since <span data-f="rampFromM"></span></td><td><span class="state" data-state="m3Last"></span></td></tr>
         </tbody>
       </table>
@@ -400,6 +423,7 @@
           <li><b>Retail memory $/GB.</b> Keepa DDR4 and DDR5 series from the Stanford DAM memory-price dataset, retrieved 2026-11-08. Secondary, retail only.</li>
           <li><b>SK hynix financials.</b> Quarterly revenue and operating profit, K-IFRS consolidated, stockanalysis.com, retrieved 2026-11-08; <span class="mono" data-f="ncQ"></span> from the company's preliminary release (<span class="mono" data-f="release"></span>).</li>
           <li><b>USD/KRW.</b> Yahoo Finance month-end closes, used to convert monthly exports to KRW for the forecast.</li>
+          <li><b>HBM proxy.</b> Korea HS 854232 exports by destination: UN Comtrade (partner "Other Asia, nes" = Taiwan) for 2019–2025, Korea Customs by country × HS10 from Oct 2025; exact match on Oct–Dec 2025. Code: <code>src/analysis/hbm_proxy.py</code>. TrendForce context: HBM3e priced 4–5× server DDR5, gap expected to narrow to 1–2× by end-2026 (18 Dec 2025); 2027 blended HBM ASP forecast +121% YoY (29 Sep 2026).</li>
           <li><b>Satellite.</b> Sentinel-2 L2A, 10 m, Element84 Earth Search STAC, one scene per quarter <span class="mono" data-f="satFirst"></span> to <span class="mono" data-f="satLast"></span> (last scene <span class="mono" data-f="satLastDate"></span>). M15X footprint from OpenStreetMap. Milestones: ETNews / Asia Economy (Sep 2022), TrendForce (cleanroom, Oct 2025); roof completion is this project's own read of the images.</li>
         </ol>
         <h3 style="margin-top:32px">How the numbers are made</h3>

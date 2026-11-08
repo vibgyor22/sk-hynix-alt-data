@@ -4,7 +4,8 @@ The keyless preview endpoint allows ONE period per request, so we loop month by 
 Each raw response is saved untouched (plus a retrieval timestamp) so nothing is overwritten
 or invented; months already on disk are skipped, which makes re-runs incremental.
 
-Usage:  python src/data/export_ingestion.py 2015-01 2026-06
+Usage:  python src/data/export_ingestion.py 2015-01 2026-06          (world total)
+        python src/data/export_ingestion.py 2019-01 2025-12 all      (every destination; same number of requests)
 """
 import json
 import sys
@@ -70,4 +71,7 @@ def main(start: str, end: str) -> None:
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 3 and sys.argv[3] == "all":  # all partners: drop the partner filter, save to a separate folder
+        PARAMS.pop("partnerCode")
+        RAW_DIR = RAW_DIR.parent / "comtrade_by_partner"
     main(sys.argv[1], sys.argv[2])
