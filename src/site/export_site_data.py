@@ -310,7 +310,7 @@ MILESTONES = [
     {"date": "2022-10", "when": "Oct 2022", "label": "Groundbreaking", "detail": "Groundbreaking, Oct 2022",
      "source": "ETNews / Asia Economy, Sep 2022", "kind": "reported"},
     {"date": "2025-05", "when": "~2025Q2", "label": "Roof complete", "detail": "Roof visibly complete, around 2025Q2",
-     "source": "Our Sentinel-2 read", "kind": "observed"},
+     "source": "Sentinel-2 imagery (this analysis)", "kind": "observed"},
     {"date": "2025-10", "when": "Oct 2025", "label": "Cleanroom opened", "detail": "Cleanroom opened Oct 2025; equipment installed in sequence",
      "source": "TrendForce", "kind": "reported"},
     {"date": "2026-02", "when": "early 2026", "label": "1b DRAM (HBM) start", "detail": "1b DRAM for HBM planned to start, early 2026",

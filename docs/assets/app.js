@@ -979,7 +979,7 @@
       cap.innerHTML = `<span><b>${esc(f.quarter.slice(0, 4) + " " + f.quarter.slice(4))}</b>${esc(f.date)}</span><span>${esc(f.scene)}</span>`;
       range.value = idx;
       stripSvg.selectAll(".tick-q").classed("on", (d, j) => j === idx);
-      stripSvg.select(".cursor").attr("x1", sx(pm(f.date.slice(0, 7)))).attr("x2", sx(pm(f.date.slice(0, 7))));
+      stripSvg.select(".cursor").attr("x1", sx(idx)).attr("x2", sx(idx));
     }
     range.addEventListener("input", () => { stop(); show(+range.value); });
     const playBtn = $("[data-play]", fig);
@@ -993,27 +993,35 @@
 
     // milestone strip
     const stripSvg = d3.select(stripEl).append("svg").attr("class", "strip").attr("role", "img").attr("aria-label", "M15X milestones and image dates");
-    let sx = d3.scaleTime();
+    // Index scale: frame i sits exactly under the slider stop for value i (thumb is 14px wide, see .satrange CSS).
+    // Frames are consecutive quarters; a date maps to a fractional index (first month of a quarter = i - 1/3).
+    const THUMB = 14, qn = (q) => +q.slice(0, 4) * 4 + (+q.slice(5) - 1), q0 = qn(fr[0].quarter);
+    const dateIdx = (d) => d.getFullYear() * 4 + Math.floor(d.getMonth() / 3) - q0 + ((d.getMonth() % 3) - 1) / 3;
+    let sx = (i) => i;
     function renderStrip() {
+      hideTip();  // a tooltip opened over the old strip would otherwise stay on screen
       const w = stripEl.clientWidth || 600, narrow = w < 560;
       const rowH = 30, top = 34, h = top + 14 + msByDate.length * rowH;
       stripSvg.attr("viewBox", `0 0 ${w} ${h}`).attr("width", w).attr("height", h);
       stripSvg.selectAll("*").remove();
-      const d0 = new Date(+pm(fr[0].date.slice(0, 7)) - 40 * 864e5), d1 = new Date(+pm(fr[fr.length - 1].date.slice(0, 7)) + 40 * 864e5);
-      sx = d3.scaleTime().domain([d0, d1]).range([8, w - 8]);
-      stripSvg.append("g").attr("class", "axis").attr("transform", `translate(0,${top})`)
-        .call(d3.axisBottom(sx).ticks(d3.timeYear.every(1)).tickFormat(d3.timeFormat("%Y")).tickSize(4));
-      stripSvg.append("line").attr("x1", 8).attr("x2", w - 8).attr("y1", top).attr("y2", top).attr("stroke", "#3a3a38");
+      const step = (w - THUMB) / (fr.length - 1);
+      sx = (i) => THUMB / 2 + i * step;
+      stripSvg.append("line").attr("x1", sx(0)).attr("x2", sx(fr.length - 1)).attr("y1", top).attr("y2", top).attr("stroke", "#3a3a38");
+      // year labels under each Q1 frame
+      const g = stripSvg.append("g").attr("class", "axis");
+      fr.forEach((f, i) => {
+        if (f.quarter.endsWith("Q1")) g.append("text").attr("x", sx(i)).attr("y", top + 16).attr("text-anchor", "middle").text(f.quarter.slice(0, 4));
+      });
       stripSvg.append("line").attr("class", "cursor").attr("y1", 4).attr("y2", top).attr("stroke", "var(--ink)").attr("stroke-width", 1);
       stripSvg.selectAll(".tick-q").data(fr).join("line").attr("class", "tick-q")
-        .attr("x1", (f) => sx(pm(f.date.slice(0, 7)))).attr("x2", (f) => sx(pm(f.date.slice(0, 7)))).attr("y1", top - 12).attr("y2", top);
+        .attr("x1", (f, i) => sx(i)).attr("x2", (f, i) => sx(i)).attr("y1", top - 12).attr("y2", top);
       stripSvg.selectAll(".hit").data(fr).join("rect").attr("class", "hit")
-        .attr("x", (f) => sx(pm(f.date.slice(0, 7))) - 8).attr("width", 16).attr("y", 0).attr("height", top + 2)
+        .attr("x", (f, i) => sx(i) - step / 2).attr("width", step).attr("y", 0).attr("height", top + 2)
         .on("click", (ev, f) => { stop(); show(fr.indexOf(f)); })
         .on("pointermove", (ev, f) => showTip(tipHtml(f.quarter, [["Scene date", f.date], ["Site clear", Math.round(f.site_clear * 100) + "%"]], esc(f.scene)), ev))
         .on("pointerleave", hideTip);
       msByDate.forEach((ms, i) => {
-        const x = sx(ms.d), y = top + 14 + i * rowH + 10;
+        const x = sx(Math.max(0, Math.min(fr.length - 1, dateIdx(ms.d)))), y = top + 14 + i * rowH + 10;
         const right = x > w * 0.55;
         stripSvg.append("line").attr("class", "ms-line").attr("x1", x).attr("x2", x).attr("y1", top).attr("y2", y);
         stripSvg.append("circle").attr("class", "ms-dot " + ms.kind).attr("cx", x).attr("cy", top).attr("r", 4.5);
