@@ -280,6 +280,7 @@
     });
   }
   function chips(el, series, onToggle) {
+    if (!el) return;
     el.innerHTML = "";
     series.forEach((s) => {
       const b = document.createElement("button");
