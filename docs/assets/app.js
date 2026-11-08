@@ -822,7 +822,7 @@
       endFmt: (p) => d3.format(",")(Math.round(p.y)),
       tip: priceTip,
     });
-    chips($("[data-chips]", fig1), Object.keys(defs).map((id) => Object.assign({ id, on: st.on[id] }, defs[id])),
+    chips($("[data-chips]", fig1), Object.keys(defs).map((id) => Object.assign({ id, on: true }, defs[id])),
       (id, on) => { st.on[id] = on; price.render(true); });
 
     // momentum
@@ -945,7 +945,7 @@
     const st = { model: "m2", visible: false };
     const svg = d3.select(el).append("svg").attr("role", "img").attr("aria-label", "SK hynix revenue vs quarter-to-date forecast");
     svg.append("defs").append("pattern").attr("id", "hatch").attr("width", 6).attr("height", 6).attr("patternUnits", "userSpaceOnUse").attr("patternTransform", "rotate(45)")
-      .call((p) => { p.append("rect").attr("width", 6).attr("height", 6).attr("fill", "#27344b"); p.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 6).attr("stroke", "#6a6a66").attr("stroke-width", 2); });
+      .call((p) => { p.append("rect").attr("width", 6).attr("height", 6).attr("fill", "#2a2a28"); p.append("line").attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 6).attr("stroke", "#6a6a66").attr("stroke-width", 2); });
     const gGrid = svg.append("g").attr("class", "grid"), gX = svg.append("g").attr("class", "axis"), gY = svg.append("g").attr("class", "axis");
     const gBars = svg.append("g"), gNc = svg.append("g"), gLab = svg.append("g"), gLeg = svg.append("g"), gHit = svg.append("g");
     let cur = {};
@@ -969,7 +969,7 @@
 
       const hidden = !st.visible && !RM;
       const bars = gBars.selectAll("rect").data(FQ, (q) => q.quarter).join("rect")
-        .attr("fill", (q) => (q.preliminary ? "url(#hatch)" : "#27344b"))
+        .attr("fill", (q) => (q.preliminary ? "url(#hatch)" : "#2a2a28"))
         .attr("stroke", (q) => (q.preliminary ? "#6a6a66" : "none"))
         .attr("x", (q) => x(q.quarter)).attr("width", x.bandwidth());
       if (hidden) bars.attr("y", y(0)).attr("height", 0);
@@ -1002,7 +1002,7 @@
       let lx = m.l;
       items.forEach(([k, t]) => {
         const g = gLeg.append("g").attr("transform", `translate(${lx},6)`);
-        if (k === "bar") g.append("rect").attr("width", 10).attr("height", 10).attr("fill", "#27344b").attr("stroke", "#555");
+        if (k === "bar") g.append("rect").attr("width", 10).attr("height", 10).attr("fill", "#2a2a28").attr("stroke", "#555");
         else g.append("line").attr("x1", 0).attr("x2", 12).attr("y1", 5).attr("y2", 5).attr("stroke", "#f2f2f0").attr("stroke-width", 2);
         g.append("text").attr("class", "annot").attr("x", 16).attr("y", 9).text(t);
         lx += 16 + t.length * 6.6 + 18;
@@ -1096,7 +1096,7 @@
       stripSvg.selectAll("*").remove();
       const step = (w - THUMB) / (fr.length - 1);
       sx = (i) => THUMB / 2 + i * step;
-      stripSvg.append("line").attr("x1", sx(0)).attr("x2", sx(fr.length - 1)).attr("y1", top).attr("y2", top).attr("stroke", "#2f394a");
+      stripSvg.append("line").attr("x1", sx(0)).attr("x2", sx(fr.length - 1)).attr("y1", top).attr("y2", top).attr("stroke", "#3a3a38");
       // year labels under each Q1 frame
       const g = stripSvg.append("g").attr("class", "axis");
       fr.forEach((f, i) => {
