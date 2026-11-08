@@ -351,6 +351,33 @@ def build_satellite():
 
 
 # ---------------------------------------------------------------- main
+def build_corr():
+    """Correlation of SK hynix revenue / margin with Korean memory exports (exports converted to KRW monthly)."""
+    from datetime import datetime, timezone
+    fxj = json.loads((ROOT / "data/raw/fx/usdkrw_monthly_yahoo_retrieved20261108.json").read_text())["chart"]["result"][0]
+    fx = pd.Series(fxj["indicators"]["quote"][0]["close"],
+                   index=pd.PeriodIndex([datetime.fromtimestamp(t + 43200, timezone.utc).strftime("%Y-%m") for t in fxj["timestamp"]], freq="M")
+                   ).groupby(level=0).last()  # +12h: Yahoo month stamps are London midnight
+    mt = pd.read_csv(ROOT / "data/processed/korean_exports/monthly_total.csv")
+    mt = mt.set_index(pd.PeriodIndex(mt.month, freq="M")).value_usd
+    krw = (mt * fx.reindex(mt.index)).dropna()
+    g = krw.groupby(krw.index.asfreq("Q")).agg(["sum", "size"])
+    ex = g[g["size"] == 3]["sum"]
+    fin = pd.read_csv(ROOT / "data/financials/skhynix_quarterly.csv")
+    fin.index = pd.PeriodIndex(fin.quarter, freq="Q")
+    qd = pd.read_csv(ROOT / "data/processed/korean_exports/quarterly_decomposition.csv", index_col=0)
+    qd.index = pd.PeriodIndex(qd.index, freq="Q")
+    d = pd.DataFrame({"rev": fin.revenue_krw_m, "op": fin.operating_profit_krw_m, "ex": ex, "uv": qd.usd_per_g}).dropna()
+    qoq = pd.DataFrame({"r": np.log(d.rev).diff(), "e": np.log(d.ex).diff()}).dropna()
+    yoy = pd.DataFrame({"r": np.log(d.rev).diff(4), "e": np.log(d.ex).diff(4)}).dropna()
+    mu = pd.DataFrame({"m": d.op / d.rev, "u": np.log(d.uv).diff(4)}).dropna()
+    slope, icpt = np.polyfit(qoq.e, qoq.r, 1)
+    return {"first_q": str(d.index[0]), "last_q": str(d.index[-1]),
+            "qoq": qoq.r.corr(qoq.e), "qoq_n": len(qoq), "slope": slope, "intercept": icpt,
+            "yoy": yoy.r.corr(yoy.e), "yoy_n": len(yoy), "margin_uv": mu.m.corr(mu.u), "margin_uv_n": len(mu),
+            "points_qoq": [{"q": str(k), "e": round(v.e, 4), "r": round(v.r, 4)} for k, v in qoq.iterrows()]}
+
+
 def build_hbm():
     """HBM proxy: Korean memory exports by destination (Taiwan = TSMC CoWoS packaging), from src/analysis/hbm_proxy.py."""
     d = pd.read_csv(ROOT / "data/processed/korean_exports/quarterly_by_destination.csv")
@@ -387,6 +414,7 @@ def main():
     contract, cs, cmom3 = build_contract()
     retail = build_retail()
     fin = build_financials()
+    fin["corr"] = build_corr()
     sat = build_satellite()
 
     write("exports_monthly.json", records(monthly, list(monthly.columns)))
@@ -398,6 +426,9 @@ def main():
     write("retail.json", retail)
     write("financials.json", fin)
     write("satellite.json", sat)
+    c = fin["corr"]
+    print(f"  corr revenue vs exports: QoQ {c['qoq']:.2f} (n={c['qoq_n']}, slope {c['slope']:.2f}), YoY {c['yoy']:.2f} (n={c['yoy_n']}); "
+          f"margin vs unit value YoY {c['margin_uv']:.2f} (n={c['margin_uv_n']})")
     hbm = build_hbm()
     write("hbm.json", hbm)
     print(f"  HBM proxy {hbm['headline']['last_q']}: Taiwan ${hbm['headline']['value_usd']/1e9:.1f}bn, "

@@ -313,6 +313,8 @@
     charts.push(...splitChart(D));
     charts.push(mixChart(D));
     charts.push(...priceCharts(D));
+    const cc = corrChart(D);
+    if (cc) charts.push(cc);
     const hc = hbmChart(D);
     if (hc) charts.push(hc);
     charts.push(...nowcastCharts(D));
@@ -414,7 +416,7 @@
     const sc = Object.fromEntries(D.financials.scorecard.map((s) => [s.model, s]));
     const rd = D.financials.revenue_file_differences[0];
     const S = D.meta.series;
-    const H = D.hbm.headline, TW = D.hbm.quarterly.Taiwan;
+    const H = D.hbm.headline, TW = D.hbm.quarterly.Taiwan, C = D.financials.corr;
     const hbmQoq = (TW[TW.length - 1].uv / TW[TW.length - 2].uv - 1) * 100;
     return {
       eQ: [e.quarter, "q"], ePQ: [e.prior_quarter, "q"],
@@ -444,6 +446,9 @@
       satMinClear: [D.satellite.min_site_clear * 100, "pct0"],
       satPx: [D.satellite.site_pixels, "int"],
       satKm: [D.satellite.extent_km.ew.toFixed(1) + " × " + D.satellite.extent_km.ns.toFixed(1) + " km", "str"],
+      // correlation of SK hynix with exports
+      corrQoq: [C.qoq, "f2"], corrYoy: [C.yoy, "f2"], corrSlope: [C.slope, "f2"], corrMargin: [C.margin_uv, "f2"],
+      corrN: [C.qoq_n, "int"], corrMarginN: [C.margin_uv_n, "int"], corrFirst: [C.first_q, "q"], corrLast: [C.last_q, "q"],
       // HBM proxy (exports to Taiwan)
       hbmQ: [H.last_q, "q"], hbmValue: [H.value_usd / 1e9, "usdbn"], hbmYoy: [H.yoy_value_pct, "pct0s"],
       hbmUv: [H.usd_per_g, "usd0"], hbmUvPrior: [H.usd_per_g_prior, "usd0"], hbmChinaUv: [H.china_usd_per_g, "usd0"],
@@ -674,6 +679,43 @@
     seg("mix-freq", (v) => { st.freq = v; setUnit(); chart.render(true); });
     setUnit();
     return { el: fig, render: chart.render, reveal: chart.reveal };
+  }
+
+  // ------------------------------------------------------------------ FIG 3.0 revenue vs exports scatter
+  function corrChart(D) {
+    const fig = $("#fig-corr"); if (!fig || !D.financials.corr) return null;
+    const el = $("[data-plot]", fig), C = D.financials.corr, P = C.points_qoq;
+    let shown = false;
+    function render() {
+      el.innerHTML = "";
+      const w = el.clientWidth || 600, h = Math.max(260, Math.min(420, w * 0.42)), m = { t: 14, r: 24, b: 38, l: 52 };
+      const ext = d3.extent(P.flatMap((p) => [p.e, p.r])), pad = (ext[1] - ext[0]) * 0.08;
+      const dom = [ext[0] - pad, ext[1] + pad];
+      const x = d3.scaleLinear().domain(dom).range([m.l, w - m.r]), y = d3.scaleLinear().domain(dom).range([h - m.b, m.t]);
+      const s = d3.select(el).append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", w).attr("height", h).attr("role", "img")
+        .attr("aria-label", "Scatter of SK hynix revenue growth against Korean memory export growth");
+      const pct = (v) => Math.round((Math.exp(v) - 1) * 100) + "%";
+      s.append("g").attr("class", "axis").attr("transform", `translate(0,${h - m.b})`).call(d3.axisBottom(x).ticks(6).tickFormat(pct).tickSize(4));
+      s.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickFormat(pct).tickSize(0).tickPadding(8));
+      s.append("text").attr("class", "ylab").attr("x", w - m.r).attr("y", h - 6).attr("text-anchor", "end").text("Korean memory exports, QoQ (KRW)");
+      s.append("text").attr("class", "ylab").attr("x", m.l).attr("y", m.t - 2).text("SK hynix revenue, QoQ");
+      s.append("line").attr("class", "zero").attr("x1", x(dom[0])).attr("x2", x(dom[1])).attr("y1", y(dom[0])).attr("y2", y(dom[1])).attr("stroke-dasharray", "3 4");
+      s.append("line").attr("stroke", "var(--accent)").attr("stroke-width", 1.4)
+        .attr("x1", x(dom[0])).attr("x2", x(dom[1])).attr("y1", y(C.intercept + C.slope * dom[0])).attr("y2", y(C.intercept + C.slope * dom[1]));
+      const last = P[P.length - 1];
+      s.selectAll("circle").data(P).join("circle").attr("cx", (p) => x(p.e)).attr("cy", (p) => y(p.r)).attr("r", (p) => (p === last ? 5 : 3.6))
+        .attr("fill", (p) => (p === last ? "var(--ink)" : "var(--bg)")).attr("stroke", "var(--ink-2)").attr("stroke-width", 1.2)
+        .style("opacity", shown || RM ? 1 : 0)
+        .on("pointermove", (ev, p) => showTip(tipHtml(qLabel(p.q), [["Exports QoQ", pct(p.e)], ["Revenue QoQ", pct(p.r)]], "log changes, KRW"), ev))
+        .on("pointerleave", hideTip);
+      s.append("text").attr("class", "annot").attr("x", x(last.e) - 8).attr("y", y(last.r) - 8).attr("text-anchor", "end").text(qLabel(last.q));
+      s.append("text").attr("class", "annot").attr("x", w - m.r).attr("y", h - m.b - 12).attr("text-anchor", "end")
+        .text("corr " + C.qoq.toFixed(2) + " · slope " + C.slope.toFixed(2) + " · dashed = one-for-one");
+    }
+    return {
+      el: fig, render,
+      reveal() { if (shown) return; shown = true; d3.select(el).selectAll("circle").transition().delay((d, i) => i * 40).duration(400).style("opacity", 1); },
+    };
   }
 
   // ------------------------------------------------------------------ FIG 2.3 HBM proxy (exports by destination)
