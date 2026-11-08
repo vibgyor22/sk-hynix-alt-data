@@ -1,0 +1,7 @@
+# local scratch / duplicate downloads (originals are kept under data/raw/)
+/*.xlsx
+/*.csv
+ingest_log.txt
+.cursor/
+__pycache__/
+*.pyc

@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SK hynix Alt-Data</title>
+<meta name="description" content="Does SK hynix's memory upcycle have room to run? Korean customs exports, DRAM contract prices and an export-based revenue nowcast.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0a0a'/%3E%3Cpath d='M2 12 L6 8 L9 10 L14 3' stroke='%23f2f2f0' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><b>000660.KS</b> &nbsp;/&nbsp; alt-data note</div>
+    <nav class="nav" aria-label="Sections">
+      <a href="#q1">01 Demand</a><a href="#q2">02 Cycle</a><a href="#q3">03 Nowcast</a><a href="#q4">04 Supply</a><a href="#mind">Kill signals</a><a href="#method">Method</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- ============================================================ HERO -->
+<section class="hero hero-plain">
+  <div class="wrap">
+    <div class="titlebar">
+      <h1>SK hynix: alt-data thesis notes</h1>
+      <p class="meta">Korean customs exports &middot; DRAM contract prices &middot; SK hynix results &middot; Sentinel-2 &middot; data to <span data-f="exportsLastM"></span></p>
+    </div>
+
+    <div class="abstract">
+      <div>
+        <h3>Approach</h3>
+        <ul>
+          <li>Split Korean memory exports (HS 854232, <span data-f="exFirst"></span> onward) into volume (weight) and unit value.</li>
+          <li>Built a monthly DDR4 8Gb contract price series from DRAMeXchange figures reported in the Korean press, one sourced row per month.</li>
+          <li>Backtested a simple rule that forecasts SK hynix revenue from exports partway through each quarter.</li>
+          <li>Checked M15X fab construction with quarterly Sentinel-2 satellite images.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Findings</h3>
+        <ul>
+          <li>Export value <b class="num-i" data-f="valMult"></b> YoY in <span data-f="eQ"></span>, weight <span class="num-i" data-f="wtYoy"></span>: <span class="num-i" data-f="uvShare"></span> of growth is unit value.</li>
+          <li>Contract price <span class="num-i" data-f="cFirst"></span> → <b class="num-i" data-f="cLast"></b>; 3-month change down from <span class="num-i" data-f="m3Peak"></span> to <b class="num-i" data-f="m3Last"></b>. Slowing, still positive.</li>
+          <li>After month 2, the rule called the direction of revenue right in <b class="num-i"><span data-f="hitsM2"></span>/<span data-f="nQtd"></span></b> quarters, <span class="num-i" data-f="mapeM2"></span> mean error.</li>
+          <li>M15X shell looks complete from about 2025Q2; prices kept rising through its 2026 ramp.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="dash" aria-label="Overview">
+      <a class="tile" href="#q1">
+        <div class="tl"><span>01</span> Demand: price or volume</div>
+        <div class="tk"><span data-f="valMult"></span> <small>export value YoY, <span data-f="eQ"></span> &middot; weight <span data-f="wtYoy"></span></small></div>
+        <div class="tc" data-mini="demand"></div>
+        <div class="tf">Quarterly export value vs weight, indexed &middot; Fig 1.1 →</div>
+      </a>
+      <a class="tile" href="#q2">
+        <div class="tl"><span>02</span> Cycle: price momentum</div>
+        <div class="tk"><span data-f="m3Last"></span> <small>3-month change, <span data-f="m3LastM"></span></small></div>
+        <div class="tc" data-mini="cycle"></div>
+        <div class="tf">DDR4 8Gb contract, 3-month % change; turn = below 0 &middot; Fig 2.2 →</div>
+      </a>
+      <a class="tile" href="#q3">
+        <div class="tl"><span>03</span> Nowcast: revenue</div>
+        <div class="tk"><span data-f="hitsM2"></span>/<span data-f="nQtd"></span> <small>direction calls after month 2 &middot; <span data-f="mapeM2"></span> mean error</small></div>
+        <div class="tc" data-mini="nowcast"></div>
+        <div class="tf">Revenue: forecast after month 2 vs actual, ₩tn &middot; Fig 3.2 →</div>
+      </a>
+      <a class="tile" href="#q4">
+        <div class="tl"><span>04</span> Supply: M15X build</div>
+        <div class="tk">~Q2 2025 <small>roof visibly complete</small></div>
+        <div class="tc" data-mini="supply"></div>
+        <div class="tf">Same 1.8 km area; white box = M15X footprint &middot; Fig 4.1 →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ Q1 -->
+<section class="q" id="q1">
+  <div class="wrap">
+    <div class="qhead reveal">
+      <div class="qnum"><b>01</b>Demand</div>
+      <div>
+        <div class="tag">Pricing power</div>
+        <h2>Is Korean memory export growth driven by price or by volume?</h2>
+        <div class="verdict">Price. <span data-f="uvShare"></span> of the <span data-f="eQ"></span> YoY rise is unit value.</div>
+      </div>
+    </div>
+
+    <figure class="chart" id="fig-split">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 1.1</div>
+          <h4>Export value growth, split into weight and unit value</h4>
+          <div class="unit">YoY change; bars stack in log space, so weight + unit value = value</div>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Frequency" data-ctl="split-freq">
+            <button aria-pressed="true" data-v="Q">Quarterly</button><button aria-pressed="false" data-v="M">Monthly · 3m sums</button>
+          </div>
+        </div>
+      </div>
+      <div class="plot" data-plot></div>
+      <div class="brushbox"><div class="plot" data-brush></div><div class="hint">Drag to set the date range · export value, $bn per month</div></div>
+      <figcaption>HS 854232 (memory ICs), Korea total. Value and weight are summed over each period first, then divided. Monthly mode uses rolling 3-month sums against the same window a year earlier. Source: UN Comtrade to Sep 2021, Korea Customs Service from Oct 2021.</figcaption>
+    </figure>
+
+    <figure class="chart" id="fig-mix">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 1.2</div>
+          <h4>Which HS10 lines carry it</h4>
+          <div class="unit" data-unit>$ per gram</div>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Metric" data-ctl="mix-metric">
+            <button aria-pressed="true" data-v="uv">$/g</button><button aria-pressed="false" data-v="v">Value</button><button aria-pressed="false" data-v="w">Weight</button>
+          </div>
+          <div class="seg" role="group" aria-label="Frequency" data-ctl="mix-freq">
+            <button aria-pressed="true" data-v="Q">Q</button><button aria-pressed="false" data-v="M">M · 3m</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips" data-chips aria-label="HS10 lines"></div>
+      <div class="plot" data-plot></div>
+      <figcaption>Korea Customs HS10 lines: 8542321010 DRAM, 8542321030 Flash, 8542323000 Composite-chip ICs (multi-chip packages; the line HBM stacks are likely reported under, though customs data does not say so), everything else grouped as Other. Line data starts Oct 2021.</figcaption>
+    </figure>
+
+    <div class="qa reveal">
+      <div><h3>Question</h3><p>Is the export boom more chips, or each chip worth more?</p></div>
+      <div><h3>What the data shows</h3>
+        <p>In <span data-f="eQ"></span>, export value was <b class="num-i" data-f="valMult"></b> a year earlier (<span class="num-i" data-f="valYoy"></span>). Weight rose <span class="num-i" data-f="wtYoy"></span>.</p>
+        <p>Unit value went from <span class="num-i" data-f="uvPrior"></span> to <b class="num-i" data-f="uv"></b> per gram.</p>
+        <p>On the plain DRAM line it went from <span class="num-i" data-f="dramUvPrior"></span> to <b class="num-i" data-f="dramUv"></b> (<span class="num-i" data-f="dramMult"></span>). DRAM contributed <span class="num-i" data-f="dramContrib"></span> of the value growth, composite-chip ICs <span class="num-i" data-f="compContrib"></span>.</p>
+      </div>
+      <div><h3>Why it matters</h3>
+        <p><span class="interp">Interpretation</span>Value up <span class="num-i" data-f="valMult"></span> while weight rose <span class="num-i" data-f="wtYoy"></span> is pricing power, not volume. Because the commodity DRAM line re-priced too, the gain is not limited to HBM and other premium parts.</p>
+      </div>
+      <div><h3>Caveat</h3>
+        <p>HS 854232 includes Samsung. Unit value is value ÷ weight, not a chip price; a shift toward denser or premium parts raises it without any price change. Customs values get revised.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ Q2 -->
+<section class="q" id="q2">
+  <div class="wrap">
+    <div class="qhead reveal">
+      <div class="qnum"><b>02</b>Cycle</div>
+      <div>
+        <div class="tag">Peak risk</div>
+        <h2>Is the price cycle peaking?</h2>
+        <div class="verdict">Still rising, more slowly. Two independent sources agree.</div>
+      </div>
+    </div>
+
+    <figure class="chart" id="fig-price">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 2.1</div>
+          <h4>Contract price, export unit value and retail, on one base</h4>
+          <div class="unit" data-unit>Index, Jan 2025 = 100 · log scale</div>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Frequency" data-ctl="price-freq">
+            <button aria-pressed="true" data-v="M">Monthly</button><button aria-pressed="false" data-v="Q">Quarterly</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips" data-chips aria-label="Series"></div>
+      <div class="plot" data-plot></div>
+      <figcaption>Different units, so each series is indexed to its own Jan 2025 (or 2025Q1) level. Hover for the raw value and source. Contract: DDR4 8Gb 1Gx8 monthly fixed price (DRAMeXchange, as reported by Korean press). Export unit value: HS 854232, 3-month sums. Retail: Keepa $/GB from the Stanford DAM memory-price dataset, a secondary consumer cross-check only.</figcaption>
+    </figure>
+
+    <figure class="chart" id="fig-mom">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 2.2</div>
+          <h4>Momentum: 3-month change</h4>
+          <div class="unit" data-unit>% change vs 3 months earlier</div>
+        </div>
+      </div>
+      <div class="plot" data-plot></div>
+      <div class="brushbox"><div class="plot" data-brush></div><div class="hint">Drag to set the date range for Fig 2.1 and 2.2 · DDR4 contract $</div></div>
+      <figcaption>Contract momentum: price vs 3 months earlier (Dec 2024 has no published figure, so Feb and Mar 2025 are blank). Export momentum: 3-month-sum unit value vs the previous non-overlapping 3 months. Quarterly mode shows quarter-on-quarter change of the quarterly average (contract) and quarterly unit value (exports).</figcaption>
+    </figure>
+
+    <details class="data" id="src-table">
+      <summary>Contract price sources, one per month</summary>
+      <div class="tablewrap"><table><thead><tr><th>Month</th><th class="n">$</th><th class="n">MoM</th><th class="n">3m</th><th>Published</th><th>Source</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    </details>
+
+    <div class="qa reveal">
+      <div><h3>Question</h3><p>Prices are up a lot. Is the rate of increase rolling over?</p></div>
+      <div><h3>What the data shows</h3>
+        <p>DDR4 8Gb contract: <span class="num-i" data-f="cFirst"></span> (<span data-f="cFirstM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>).</p>
+        <p>Its 3-month change peaked at <span class="num-i" data-f="m3Peak"></span> in <span data-f="m3PeakM"></span>; it is <b class="num-i" data-f="m3Last"></b> in <span data-f="m3LastM"></span>.</p>
+        <p>Export unit-value momentum peaked at <span class="num-i" data-f="uvmPeak"></span> (<span data-f="uvmPeakM"></span>); it is <b class="num-i" data-f="uvmLast"></b> (<span data-f="uvmLastM"></span>).</p>
+      </div>
+      <div><h3>Why it matters</h3>
+        <p><span class="interp">Interpretation</span>Deceleration from a very high rate is expected late in an upcycle. A peak in prices needs momentum below zero, and neither series is there. Two sources with different methods show the same shape.</p>
+      </div>
+      <div><h3>Caveat</h3>
+        <p>DDR4 8Gb is a legacy part, a proxy for the commodity market, not for HBM or DDR5 server pricing. Contract figures come from press reports of DRAMeXchange data. Retail $/GB is noisy, and retail DDR4 has not tracked the contract price.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ Q3 -->
+<section class="q" id="q3">
+  <div class="wrap">
+    <div class="qhead reveal">
+      <div class="qnum"><b>03</b>Nowcast</div>
+      <div>
+        <div class="tag">Earnings lead</div>
+        <h2>Do customs exports read the quarter early?</h2>
+        <p class="lede">Two months into a quarter, Korean customs data has called the direction of SK hynix revenue correctly in <b class="num-i"><span data-f="hitsM2"></span> of <span data-f="nQtd"></span></b> quarters, with <b class="num-i" data-f="mapeM2"></b> average error, <span data-f="leadM2W"></span> before results.</p>
+        <div class="verdict">Direction: reliable. Level: can miss by up to <span data-f="worstM2"></span>.</div>
+      </div>
+    </div>
+
+    <div class="score reveal">
+      <div><div class="big"><span data-f="hitsM2"></span>/<span data-f="nQtd"></span></div><div class="lab">Up/down calls right after month 2 (<span data-f="btFirst"></span>–<span data-f="btLast"></span>)</div></div>
+      <div><div class="big"><span data-f="mapeM2" data-count></span></div><div class="lab">Mean absolute error after month 2</div></div>
+      <div><div class="big"><span data-f="mapeBase" data-count></span></div><div class="lab">Same, baseline: last quarter's growth repeats (<span data-f="hitsBase"></span>/<span data-f="nQtd"></span> calls)</div></div>
+      <div><div class="big"><span data-f="leadM2" data-count></span> days</div><div class="lab">Month-2 customs data public before the <span data-f="ncQ"></span> release (assumes release on the 1st of the next month)</div></div>
+    </div>
+
+    <figure class="chart" id="fig-err">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 3.1</div>
+          <h4>Error falls as the quarter fills in</h4>
+          <div class="unit">Mean absolute % error, <span data-f="nQtd"></span> quarters · tick = worst quarter</div>
+        </div>
+      </div>
+      <div class="plot" data-plot></div>
+      <figcaption>Rule after k months: last quarter's revenue × exports in the first k months of this quarter ÷ exports in the same months of last quarter. No fitted parameters. Exports in KRW at Yahoo month-end USD/KRW. Dashed line: baseline that repeats last quarter's revenue growth. Code: <span class="mono">src/analysis/quarter_to_date_forecast.py</span>.</figcaption>
+    </figure>
+
+    <figure class="chart" id="fig-nowcast">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 3.2</div>
+          <h4>Forecast vs actual revenue, by quarter</h4>
+          <div class="unit">KRW trillion</div>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Months of data" data-ctl="nc-model">
+            <button aria-pressed="false" data-v="m1">After m1</button><button aria-pressed="true" data-v="m2">After m2</button><button aria-pressed="false" data-v="m3">Full quarter</button>
+          </div>
+        </div>
+      </div>
+      <div class="plot" data-plot></div>
+      <figcaption>Bars: SK hynix consolidated revenue (K-IFRS); <span data-f="ncQ"></span> is the company's preliminary release, hatched. Ticks: forecast with 1, 2 or 3 months of customs data. Hover for errors.</figcaption>
+    </figure>
+
+    <details class="data" id="bt-table">
+      <summary>Backtest, quarter by quarter</summary>
+      <div class="tablewrap"><table><thead><tr><th>Quarter</th><th class="n">Actual ₩tn</th><th class="n">m1</th><th class="n">err</th><th class="n">m2</th><th class="n">err</th><th class="n">m3</th><th class="n">err</th><th class="n">Baseline err</th></tr></thead><tbody></tbody></table></div>
+    </details>
+
+    <div class="qa reveal">
+      <div><h3>Question</h3><p>Customs data comes out monthly, weeks before SK hynix reports. How early does it say which way the quarter went?</p></div>
+      <div><h3>What the data shows</h3>
+        <p>Mean absolute error: <b class="num-i" data-f="mapeM1"></b> after month 1, <b class="num-i" data-f="mapeM2"></b> after month 2, <b class="num-i" data-f="mapeM3"></b> with the full quarter. Baseline: <span class="num-i" data-f="mapeBase"></span>.</p>
+        <p>Up/down calls: <span class="num-i"><span data-f="hitsM1"></span>/<span data-f="nQtd"></span></span>, <span class="num-i"><span data-f="hitsM2"></span>/<span data-f="nQtd"></span></span>, <span class="num-i"><span data-f="hitsM3"></span>/<span data-f="nQtd"></span></span>; baseline <span class="num-i"><span data-f="hitsBase"></span>/<span data-f="nQtd"></span></span>.</p>
+        <p><span data-f="ncQ"></span>: <span class="num-i" data-f="lM1"></span> after month 1, <span class="num-i" data-f="lM3"></span> with the full quarter. Actual <b class="num-i" data-f="actual"></b>.</p>
+      </div>
+      <div><h3>Why it matters</h3>
+        <p><span class="interp">Interpretation</span>A free read on the direction of the quarter about two months before results, from data anyone can download. It is a check on the earnings narrative, not a level forecast to trade on alone.</p>
+      </div>
+      <div><h3>Caveat</h3>
+        <p>Uses today's customs values, which may have been revised since first release. Sample: <span data-f="nQtd"></span> quarters. Direction is called well, but the level can miss by up to <span data-f="worstM2"></span> (month 2). Exports include Samsung and exclude SK hynix's China fabs. <span data-f="ncQ"></span> revenue is preliminary. Lead time assumes customs data is public on the 1st of the following month.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ Q4 -->
+<section class="q" id="q4">
+  <div class="wrap">
+    <div class="qhead reveal">
+      <div class="qnum"><b>04</b>Supply</div>
+      <div>
+        <div class="tag">New capacity · M15X, Cheongju</div>
+        <h2>Is SK hynix's new M15X fab built, and is its supply arriving now or later?</h2>
+        <div class="verdict">Now. The shell was finished by about mid-2025; prices kept rising through the ramp.</div>
+      </div>
+    </div>
+
+    <figure class="chart" id="fig-sat">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 4.1</div>
+          <h4>M15X site, one clear Sentinel-2 scene per quarter</h4>
+          <div class="unit">10 m resolution · same <span data-f="satKm"></span> area and contrast stretch in every frame · white box = M15X footprint</div>
+        </div>
+        <div class="controls">
+          <button class="chip" data-play aria-pressed="false" type="button">▶ Play</button>
+        </div>
+      </div>
+      <div class="sat">
+        <div class="satframe" data-frame>
+          <img data-img alt="Sentinel-2 greyscale image of the M15X site">
+          <div class="fp" data-fp><span>M15X</span></div>
+          <div class="satcap" data-cap></div>
+        </div>
+        <input class="satrange" type="range" min="0" max="19" step="1" value="0" data-range aria-label="Quarter">
+        <div class="plot" data-strip></div>
+      </div>
+      <figcaption>Sentinel-2 L2A, Element84 Earth Search STAC. For each quarter, the clearest scene over the site itself (cloud mask SCL); every chosen scene has at least <span data-f="satMinClear"></span> of the site clear. Footprint: OpenStreetMap way 1467790692, "M15X DRAM 공장", east of M15. Click a tick, drag the slider or use the arrow keys. <a href="assets/sat/contact_sheet.png">Contact sheet</a>.</figcaption>
+    </figure>
+
+    <figure class="chart" id="fig-swipe">
+      <div class="fighead">
+        <div class="figtitle">
+          <div class="fid">FIG 4.2</div>
+          <h4>Before / after: <span data-a></span> vs <span data-b></span></h4>
+          <div class="unit">Drag the divider</div>
+        </div>
+      </div>
+      <div class="swipe" data-swipe>
+        <img data-after alt="M15X site, latest quarter">
+        <div class="swipe-top" data-top><img data-before alt="M15X site, before construction"></div>
+        <div class="fp" data-fp></div>
+        <div class="swipe-bar" data-bar><span></span></div>
+        <div class="swipe-lab l" data-la></div><div class="swipe-lab r" data-lb></div>
+        <input type="range" min="0" max="100" value="50" step="0.5" data-swr aria-label="Before/after divider">
+      </div>
+    </figure>
+
+    <div class="qa reveal">
+      <div><h3>Question</h3><p>An upcycle ends when capacity catches up. Is M15X's capacity still to come, or already here?</p></div>
+      <div><h3>What the images show</h3>
+        <p>2022 to 2024: mixed texture inside the footprint, consistent with site works and a structure going up.</p>
+        <p>From 2025Q2: a uniform bright roof fills the footprint and matches the finished M15 roof beside it.</p>
+        <p>This fits the reported timeline: groundbreaking Oct 2022, cleanroom opened Oct 2025, 1b DRAM for HBM planned for early 2026.</p>
+      </div>
+      <div><h3>Why it matters</h3>
+        <p><span class="interp">Interpretation</span>The shell was finished by about mid-2025, so M15X supply is ramping in 2026, not still to come. The DDR4 8Gb contract price rose from <b class="num-i" data-f="rampFrom"></b> (<span data-f="rampFromM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>) through that ramp. So far, demand has absorbed M15X's new output.</p>
+      </div>
+      <div><h3>Caveat</h3>
+        <p>10 m imagery shows the building, not tools, cleanroom fit-out, yields or wafer starts. Vegetation, built-up and brightness indices were tried and were too noisy (the site is <span data-f="satPx"></span> pixels); no capacity measure is claimed from them. Yongin is not covered yet. The price evidence is DDR4 8Gb, a commodity proxy; M15X output is HBM-oriented 1b DRAM.</p>
+        <p><span class="interp">Not verified</span>A large area north-west of M15 was cleared in 2023–24 and shows new structures in 2025–26. It may be the packaging fab confirmed for Cheongju in Jan 2026.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ MIND -->
+<div class="wrap">
+  <section class="mind reveal" id="mind">
+    <h2>Thesis risks: what would change the view</h2>
+    <div class="tag">Checked against the latest data in this repository</div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Signal</th><th>Threshold</th><th class="n">Latest</th><th>State</th></tr></thead>
+        <tbody>
+          <tr><td>DDR4 contract momentum turns negative</td><td>3-month change &lt; 0%</td><td class="n"><span data-f="m3Last"></span> · <span data-f="m3LastM"></span></td><td><span class="state" data-state="m3Last"></span></td></tr>
+          <tr><td>Export unit-value momentum turns negative</td><td>3-month change &lt; 0%</td><td class="n"><span data-f="uvmLast"></span> · <span data-f="uvmLastM"></span></td><td><span class="state" data-state="uvmLast"></span></td></tr>
+          <tr><td>Growth shifts from price to volume: weight up, unit value flat</td><td>YoY unit value &lt; YoY weight</td><td class="n">UV <span data-f="uvYoyQ"></span> · wt <span data-f="wtYoy"></span></td><td><span class="state" data-state="mixShift"></span></td></tr>
+          <tr><td>Commodity DRAM stops re-pricing; only premium lines rise</td><td>DRAM-line $/g QoQ &lt; 0</td><td class="n"><span data-f="dramQoq"></span> · <span data-f="eQ"></span></td><td><span class="state" data-state="dramQoq"></span></td></tr>
+          <tr><td>New supply outruns demand: prices fall as M15X ramps</td><td>Contract 3m change &lt; 0% during the ramp</td><td class="n"><span data-f="rampFrom"></span> → <span data-f="cLast"></span> since <span data-f="rampFromM"></span></td><td><span class="state" data-state="m3Last"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</main>
+
+<!-- ============================================================ METHOD -->
+<footer id="method">
+  <div class="wrap">
+    <h2>Method &amp; data sources</h2>
+    <div class="cols">
+      <div>
+        <h3>Sources</h3>
+        <ol>
+          <li><b>Korean memory exports, HS 854232.</b> UN Comtrade monthly, <span class="mono" data-f="exFirst"></span> to Sep 2021; Korea Customs Service (KCS) from Oct 2021 to <span class="mono" data-f="exportsLastM"></span>. The two sources were checked against each other over the months where both exist before splicing.</li>
+          <li><b>HS10 line detail.</b> KCS, Oct 2021 to <span class="mono" data-f="exportsLastM"></span>. DRAM 8542321010, Flash 8542321030, Composite-chip ICs 8542323000, rest grouped as Other.</li>
+          <li><b>DDR4 8Gb 1Gx8 contract price.</b> DRAMeXchange/TrendForce monthly fixed price as reported by Korean press (Asia Economy, Newsis, Financial News, ZDNet Korea and others), <span class="mono" data-f="cFirstM"></span> to <span class="mono" data-f="cLastM"></span>. One source URL and quote per month (table under Fig 2.2). Dec 2024 not found.</li>
+          <li><b>Retail memory $/GB.</b> Keepa DDR4 and DDR5 series from the Stanford DAM memory-price dataset, retrieved 2026-11-08. Secondary, retail only.</li>
+          <li><b>SK hynix financials.</b> Quarterly revenue and operating profit, K-IFRS consolidated, stockanalysis.com, retrieved 2026-11-08; <span class="mono" data-f="ncQ"></span> from the company's preliminary release (<span class="mono" data-f="release"></span>).</li>
+          <li><b>USD/KRW.</b> Yahoo Finance month-end closes, used to convert monthly exports to KRW for the forecast.</li>
+          <li><b>Satellite.</b> Sentinel-2 L2A, 10 m, Element84 Earth Search STAC, one scene per quarter <span class="mono" data-f="satFirst"></span> to <span class="mono" data-f="satLast"></span> (last scene <span class="mono" data-f="satLastDate"></span>). M15X footprint from OpenStreetMap. Milestones: ETNews / Asia Economy (Sep 2022), TrendForce (cleanroom, Oct 2025); roof completion is this project's own read of the images.</li>
+        </ol>
+        <h3 style="margin-top:32px">How the numbers are made</h3>
+        <ul>
+          <li>Unit value = value ÷ weight, with value and weight summed over the period first. Monthly averages of unit value are never used.</li>
+          <li>YoY split: ln(V₁/V₀) = ln(W₁/W₀) + ln(UV₁/UV₀). Exact by construction.</li>
+          <li>Momentum = level vs 3 months earlier. Missing months stay blank; nothing is filled.</li>
+          <li>The quarter-to-date forecast has no fitted parameters. Code: <code>src/analysis/quarter_to_date_forecast.py</code>. Site data: <code>src/site/export_site_data.py</code>, which re-checks its figures against the analysis outputs.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Limitations</h3>
+        <ul>
+          <li><b>HS 854232 includes Samsung</b> and every other Korean memory exporter. It is a market signal, not an SK hynix signal.</li>
+          <li><b>Unit value is not a price.</b> Product mix (HBM, high-capacity modules) moves it as much as pricing does.</li>
+          <li><b>DDR4 8Gb is a legacy part.</b> It shows the commodity market, not HBM or server DDR5 contracts.</li>
+          <li><b>Small sample.</b> <span data-f="nQtd"></span> backtest quarters. Direction is called well; the level can miss by up to <span data-f="worstM2"></span>.</li>
+          <li>Customs figures are current revised values, so the backtest is not a true real-time test.</li>
+          <li>SK hynix's China fabs ship from China and are not in Korean customs data.</li>
+          <li><span data-f="ncQ"></span> revenue is preliminary. The two financial files differ by <span class="mono" data-f="revDiff"></span> on that quarter; the site uses the company figure in <code>data/financials/skhynix_quarterly.csv</code>, as the forecast does.</li>
+          <li><b>Satellite imagery at 10 m</b> shows the building, not tools or wafer output. Index-based metrics (NDVI, NDBI, brightness) were too noisy and are not shown or claimed.</li>
+          <li><b>LLM use.</b> Used only to extract dated facts (prices, quotes, construction milestones) from source documents. A person approved every extracted row. No LLM-generated numbers.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>As of <span data-f="asOf"></span> · data generated <span data-f="generated"></span></span>
+      <span>Research note, not investment advice.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
