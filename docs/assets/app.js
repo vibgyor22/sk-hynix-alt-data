@@ -297,7 +297,7 @@
   }
 
   // ------------------------------------------------------------------ load
-  const FILES = ["meta", "exports_monthly", "exports_quarterly", "lines", "contract", "retail", "financials", "satellite", "hbm"];
+  const FILES = ["meta", "exports_monthly", "exports_quarterly", "lines", "contract", "retail", "financials", "satellite", "hbm", "nand", "provenance"];
   Promise.all(FILES.map((f) => fetch(`data/${f}.json`).then((r) => { if (!r.ok) throw new Error(f + ": " + r.status); return r.json(); })))
     .then((arr) => { const D = {}; FILES.forEach((f, i) => { D[f] = arr[i]; }); init(D); })
     .catch((e) => {
@@ -321,6 +321,8 @@
     const sat = satellite(D);
     if (sat) charts.push(sat);
     charts.push(dashboard(D));
+    const pn = provenanceNet(D);
+    if (pn) charts.push(pn);
     tables(D);
     charts.forEach((c) => c.render(false));
     observe(charts, FACTS);
@@ -418,6 +420,7 @@
     const S = D.meta.series;
     const H = D.hbm.headline, TW = D.hbm.quarterly.Taiwan, C = D.financials.corr;
     const hbmQoq = (TW[TW.length - 1].uv / TW[TW.length - 2].uv - 1) * 100;
+    const NA = D.nand.filter((r) => r.avg_usd != null), NM = D.nand.filter((r) => r.mom3_pct != null), NO = D.nand.filter((r) => r.mom_pct != null);
     return {
       eQ: [e.quarter, "q"], ePQ: [e.prior_quarter, "q"],
       valMult: [e.value_multiple, "x2"], valYoy: [e.yoy_value_pct, "pct1s"], wtYoy: [e.yoy_weight_pct, "pct1s"],
@@ -427,6 +430,10 @@
       dramMult: [e.dram_usd_per_g / e.dram_usd_per_g_prior, "x1"],
       dramContrib: [e.line_contribution_pct["DRAM"], "pct0"], compContrib: [e.line_contribution_pct["Composite-chip ICs"], "pct0"],
       dramQoq: [e.dram_uv_qoq_pct, "pct1s"],
+      nandFirst: [NA[0].avg_usd, "usd2"], nandFirstM: [NA[0].month, "m"], nandLast: [NA[NA.length - 1].avg_usd, "usd2"], nandLastM: [NA[NA.length - 1].month, "m"],
+      nandM3: [NM[NM.length - 1].mom3_pct, "pct1s"], nandM3M: [NM[NM.length - 1].month, "m"],
+      nandPeak: [Math.max(...NM.map((r) => r.mom3_pct)), "pct0s"], nandPeakM: [NM.reduce((a, r) => (r.mom3_pct > a.mom3_pct ? r : a)).month, "m"],
+      nandMomPrev: [NO[NO.length - 2].mom_pct, "pct1s"], nandMomPrevM: [NO[NO.length - 2].month, "m"], nandMomLast: [NO[NO.length - 1].mom_pct, "pct1s"], nandMomLastM: [NO[NO.length - 1].month, "m"],
       cFirstM: [c.first_month, "m"], cFirst: [c.first_usd, "usd2"], cLastM: [c.last_month, "m"], cLast: [c.last_usd, "usd2"],
       m3Peak: [c.mom3_peak_pct, "pct0s"], m3PeakM: [c.mom3_peak_month, "m"], m3Last: [c.mom3_last_pct, "pct1s"], m3LastM: [c.mom3_last_month, "m"],
       rampFrom: [c.ramp_from_usd, "usd2"], rampFromM: [c.ramp_from_month, "m"],
@@ -771,79 +778,65 @@
       const g = d3.groups(rows.filter((r) => r.v != null), (r) => quarterOf(r.k));
       return g.map(([q, rs]) => ({ k: q, v: d3.mean(rs, (r) => r.v), n: rs.length })).sort((a, b) => d3.ascending(a.k, b.k));
     };
-    const qC = qAvg(mC), qR4 = qAvg(mR4), qR5 = qAvg(mR5);
+    const mN = D.nand.map((r) => ({ k: r.month, v: r.avg_usd, src: r }));
+    const qC = qAvg(mC), qR4 = qAvg(mR4), qR5 = qAvg(mR5), qN = qAvg(mN);
     const qE = EQ.filter((r) => r.quarter >= "2024Q3").map((r) => ({ k: r.quarter, v: r.usd_per_g, n: 3, qoq: r.uv_qoq_pct }));
     const base = (rows, key) => { const b = rows.find((r) => r.k === key); return b ? b.v : null; };
 
     const defs = {
-      contract: { label: "DDR4 8Gb contract", short: "Contract", cls: "s-ink", dash: "", unit: (v) => "$" + v.toFixed(2) },
+      contract: { label: "DDR4 8Gb chip", short: "DDR4 8Gb", cls: "s-ink", dash: "", unit: (v) => "$" + v.toFixed(2) },
+      nand: { label: "NAND 128Gb chip", short: "NAND 128Gb", cls: "s-grey", dash: "", unit: (v) => "$" + v.toFixed(2) },
       export: { label: "Export unit value", short: "Export UV", cls: "s-grey", dash: "s-dash", unit: (v) => "$" + v.toFixed(2) + "/g" },
       ddr4: { label: "Retail DDR4 (Keepa)", short: "Retail DDR4", cls: "s-dim", dash: "s-dot", unit: (v) => "$" + v.toFixed(2) + "/GB" },
       ddr5: { label: "Retail DDR5 (Keepa)", short: "Retail DDR5", cls: "s-dim", dash: "", unit: (v) => "$" + v.toFixed(2) + "/GB", width: 1.25 },
     };
     function priceSeries() {
       const Qm = st.freq === "Q";
-      const raw = Qm ? { contract: qC, export: qE, ddr4: qR4, ddr5: qR5 } : { contract: mC, export: mE, ddr4: mR4, ddr5: mR5 };
-      const bk = Qm ? "2025Q1" : "2025-01";
-      return Object.keys(defs).map((id) => {
-        const b = base(raw[id], bk);
-        return Object.assign({ id, on: st.on[id], sig: st.freq }, defs[id], {
-          points: raw[id].map((r) => ({ d: Qm ? pq(r.k) : pm(r.k), y: r.v != null && b ? (r.v / b) * 100 : null, raw: r })),
-        });
-      });
+      const raw = Qm ? { contract: qC, nand: qN } : { contract: mC, nand: mN };
+      return ["contract", "nand"].map((id) => Object.assign({ id, on: true, sig: st.freq }, defs[id], {
+        points: raw[id].map((r) => ({ d: Qm ? pq(r.k) : pm(r.k), y: r.v, raw: r })),
+      }));
     }
     const domFull = [pm(startM), pm(C[C.length - 1].month)];
     const priceTip = (d, S) => {
       const Qm = st.freq === "Q";
-      const any = S.map((s) => s.byT.get(+d)).find(Boolean);
-      const k = any.raw.k;
-      const rows = S.map((s) => {
-        const p = s.byT.get(+d);
-        if (!p || p.y == null) return [s.short, "–", s];
-        let txt = s.unit(p.raw.v) + " · " + Math.round(p.y);
-        if (Qm && p.raw.n != null && p.raw.n < 3) txt += ` (${p.raw.n}/3 mo)`;
-        return [s.short, txt, s];
-      });
-      let src = "Index = 100 at " + (Qm ? "2025Q1" : "Jan 2025") + ".";
-      const c = S.find((s) => s.id === "contract");
-      const cp = c && c.byT.get(+d);
-      if (!Qm && cp && cp.raw.src && cp.raw.src.source) {
-        const r = cp.raw.src;
-        src += `<br>Contract: ${esc(r.source)}, published ${esc(r.publication_date)}` + (r.flag ? `<br>Note: ${esc(r.flag)}` : "");
-      }
-      src += "<br>Export UV: Korea Customs, HS 854232" + (Qm ? "" : ", 3-month sums") + ". Retail: Keepa via Stanford DAM.";
-      return tipHtml(Qm ? qLabel(k) : mLabel(k), rows, src);
+      const pts = S.map((x) => [x, x.byT.get(+d)]);
+      const any = pts.map((x) => x[1]).find(Boolean);
+      const rows = pts.map(([x, p]) => [x.short, p && p.y != null ? x.unit(p.raw.v) : "–", x]);
+      const src = Qm ? "" : pts.filter(([x, p]) => p && p.raw.src && p.raw.src.source)
+        .map(([x, p]) => `${x.short}: ${esc(p.raw.src.source)}, ${esc(p.raw.src.publication_date)}` + (p.raw.src.flag ? `<br>Note: ${esc(p.raw.src.flag)}` : "")).join("<br>");
+      return tipHtml(Qm ? qLabel(any.raw.k) : mLabel(any.raw.k), rows, src);
     };
     const price = LineChart($("[data-plot]", fig1), {
-      aria: "Indexed DDR4 contract price, export unit value and retail prices",
-      height: (w) => Math.max(300, Math.min(500, w * 0.46)), mr: 150, yType: "log",
-      xFull: () => domFull, series: priceSeries, yFmt: (v) => d3.format(",")(v),
-      ref: { v: 100, cls: "zero", label: "" },
-      endFmt: (p) => d3.format(",")(Math.round(p.y)),
+      aria: "DDR4 8Gb and NAND 128Gb chip prices in dollars per chip",
+      height: (w) => Math.max(300, Math.min(500, w * 0.46)), mr: 150, includeZero: true,
+      xFull: () => domFull, series: priceSeries, yFmt: (v) => "$" + v,
+      endFmt: (p) => "$" + p.y.toFixed(2),
       tip: priceTip,
     });
-    chips($("[data-chips]", fig1), Object.keys(defs).map((id) => Object.assign({ id, on: true }, defs[id])),
-      (id, on) => { st.on[id] = on; price.render(true); });
 
     // momentum
     const momSeries = () => {
       const Qm = st.freq === "Q";
-      let cpts, epts;
+      let cpts, epts, npts;
       if (Qm) {
         cpts = qC.map((r, i) => ({ d: pq(r.k), y: i > 0 ? (r.v / qC[i - 1].v - 1) * 100 : null, raw: r }));
         epts = qE.map((r) => ({ d: pq(r.k), y: r.qoq, raw: r }));
+        npts = qN.map((r, i) => ({ d: pq(r.k), y: i > 0 ? (r.v / qN[i - 1].v - 1) * 100 : null, raw: r }));
       } else {
         cpts = C.map((r) => ({ d: pm(r.month), y: r.mom3_pct, raw: { k: r.month, v: r.avg_usd } }));
         epts = mE.map((r) => ({ d: pm(r.k), y: r.mom, raw: r }));
+        npts = D.nand.map((r) => ({ d: pm(r.month), y: r.mom3_pct, raw: { k: r.month, v: r.avg_usd } }));
       }
       return [
         { id: "c", label: "DDR4 8Gb contract", short: "Contract", cls: "s-ink", dash: "", points: cpts, sig: st.freq },
         { id: "e", label: "Export unit value", short: "Export UV", cls: "s-grey", dash: "s-dash", points: epts, sig: st.freq },
+        { id: "n", label: "NAND 128Gb MLC", short: "NAND", cls: "s-dim", dash: "s-dot", points: npts, sig: st.freq },
       ];
     };
     const H = D.meta.headline;
     const mom = LineChart($("[data-plot]", fig2), {
-      aria: "Three-month momentum of contract price and export unit value",
+      aria: "Three-month momentum of DDR4 price, NAND price and export unit value",
       height: (w) => Math.max(260, Math.min(420, w * 0.36)), mr: 150, xFull: () => domFull,
       series: momSeries, yFmt: (v) => (v > 0 ? "+" : "") + v + "%",
       ref: { v: 0, cls: "kill", label: "Kill signal: below 0%", at: 0.55, below: true },
@@ -864,7 +857,7 @@
     seg("price-freq", (v) => {
       st.freq = v;
       momUnit.textContent = v === "Q" ? "% change vs previous quarter" : "% change vs 3 months earlier";
-      $("[data-unit]", fig1).textContent = (v === "Q" ? "Index, 2025Q1 = 100" : "Index, Jan 2025 = 100") + " · log scale";
+      $("[data-unit]", fig1).textContent = (v === "Q" ? "Quarterly average" : "Monthly average") + ", $ per chip";
       price.render(true); mom.render(true);
     });
     const brush = Brush($("[data-brush]", fig2), {
@@ -1150,13 +1143,53 @@
     };
   }
 
+  // ------------------------------------------------------------------ method graphic: where the price rows came from
+  // Press outlets -> LLM extraction -> sourced monthly price rows. Circle and line size = number of rows.
+  function provenanceNet(D) {
+    const box = $("#prov-net");
+    if (!box || !D.provenance) return null;
+    const P = D.provenance, O = P.outlets, nTot = P.rows.ddr4 + P.rows.nand;
+    const rS = (n) => 2.2 + Math.sqrt(n) * 1.5;
+    const link = (x0, y0, x1, y1) => `M${x0},${y0} C${(x0 + x1) / 2},${y0} ${(x0 + x1) / 2},${y1} ${x1},${y1}`;
+    function render() {
+      const w = Math.max(280, Math.min(box.clientWidth || 560, 640)), narrow = w < 460;
+      const rowH = narrow ? 17 : 19, top = 12, h = top * 2 + rowH * (O.length - 1) + 8;
+      const lx = narrow ? 96 : 124, cx = w * 0.5, rx = w - (narrow ? 64 : 92), cy = h / 2;
+      const oy = (i) => top + 4 + i * rowH;
+      const outs = [{ name: "DDR4 8Gb", n: P.rows.ddr4, y: cy - 28 }, { name: "NAND 128Gb", n: P.rows.nand, y: cy + 28 }];
+      box.innerHTML = "";
+      const s = d3.select(box).append("svg").attr("viewBox", `0 0 ${w} ${h}`).attr("width", w).attr("height", h).attr("role", "img")
+        .attr("aria-label", `${O.length} press outlets feed an LLM extraction step that produces ${nTot} sourced monthly price rows`);
+      const g = s.append("g").attr("class", "net");
+      g.selectAll("path.in").data(O).join("path").attr("class", "edge")
+        .attr("d", (d, i) => link(lx + rS(d.ddr4 + d.nand), oy(i), cx - 17, cy)).attr("stroke-width", (d) => 0.5 + (d.ddr4 + d.nand) * 0.2);
+      g.selectAll("path.out").data(outs).join("path").attr("class", "edge")
+        .attr("d", (d) => link(cx + 17, cy, rx - rS(d.n), d.y)).attr("stroke-width", (d) => 0.5 + d.n * 0.2);
+      const og = g.selectAll("g.o").data(O).join("g").attr("class", "o");
+      og.append("circle").attr("cx", lx).attr("cy", (d, i) => oy(i)).attr("r", (d) => rS(d.ddr4 + d.nand));
+      og.append("text").attr("x", lx - 13).attr("y", (d, i) => oy(i) + 3.5).attr("text-anchor", "end").text((d) => d.name);
+      og.append("title").text((d) => `${d.name}: ${d.ddr4} DDR4 rows, ${d.nand} NAND rows`);
+      const c = g.append("g").attr("class", "llm");
+      c.append("circle").attr("cx", cx).attr("cy", cy).attr("r", 17);
+      c.append("text").attr("x", cx).attr("y", cy + 3.5).attr("text-anchor", "middle").text("LLM");
+      c.append("text").attr("class", "sub").attr("x", cx).attr("y", cy + 32).attr("text-anchor", "middle").text("price + quote + link");
+      const rg = g.selectAll("g.r").data(outs).join("g").attr("class", "r");
+      rg.append("circle").attr("cx", rx).attr("cy", (d) => d.y).attr("r", (d) => rS(d.n));
+      rg.append("text").attr("x", rx + 14).attr("y", (d) => d.y - 1).text((d) => d.name);
+      rg.append("text").attr("class", "sub").attr("x", rx + 14).attr("y", (d) => d.y + 11).text((d) => `${d.n} rows`);
+    }
+    return { el: $("#prov-net"), render, reveal() {} };
+  }
+
   // ------------------------------------------------------------------ tables
   function tables(D) {
-    const tb = $("#src-table tbody");
-    tb.innerHTML = D.contract.map((r) => `<tr><td>${esc(r.month)}</td><td class="n">${r.avg_usd == null ? "–" : "$" + r.avg_usd.toFixed(2)}</td>` +
+    const srcRows = (rows) => rows.map((r) => `<tr><td>${esc(r.month)}</td><td class="n">${r.avg_usd == null ? "–" : "$" + r.avg_usd.toFixed(2)}</td>` +
       `<td class="n">${r.mom_pct == null ? "–" : pctS(r.mom_pct)}</td><td class="n">${r.mom3_pct == null ? "–" : pctS(r.mom3_pct)}</td>` +
       `<td>${esc(r.publication_date || "")}</td><td>${r.source_url ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener" title="${esc(r.quote || "")}">${esc(r.source)}</a>` : "not found"}</td>` +
       `<td>${esc(r.flag || "")}</td></tr>`).join("");
+    $("#src-table tbody").innerHTML = srcRows(D.contract);
+    const nt = $("#nand-table tbody");
+    if (nt) nt.innerHTML = srcRows(D.nand);
     const bt = $("#bt-table tbody");
     const f2 = (v) => v.toFixed(2);
     bt.innerHTML = D.financials.quarters.filter((q) => q.m1 != null).map((q) =>

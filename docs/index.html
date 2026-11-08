@@ -28,7 +28,7 @@
   <div class="wrap">
     <div class="titlebar">
       <h1>SK hynix: alt-data thesis notes</h1>
-      <p class="meta">Korean customs exports &middot; DRAM contract prices &middot; SK hynix results &middot; Sentinel-2 &middot; data to <span data-f="exportsLastM"></span></p>
+      <p class="meta">Korean customs exports &middot; DRAM and NAND contract prices &middot; SK hynix results &middot; Sentinel-2 &middot; data to <span data-f="exportsLastM"></span></p>
     </div>
 
     <div class="abstract">
@@ -36,7 +36,7 @@
         <h3>Approach</h3>
         <ul>
           <li>Split Korean memory exports (HS 854232, <span data-f="exFirst"></span> onward) into volume (weight) and unit value.</li>
-          <li>Built a monthly DDR4 8Gb contract price series from DRAMeXchange figures reported in the Korean press, one sourced row per month.</li>
+          <li>Built monthly DDR4 8Gb and NAND 128Gb contract price series from DRAMeXchange figures reported in the Korean press, one sourced row per month.</li>
           <li>Backtested a simple rule that forecasts SK hynix revenue from exports partway through each quarter.</li>
           <li>Checked M15X fab construction with quarterly Sentinel-2 satellite images.</li>
         </ul>
@@ -176,8 +176,8 @@
       <div class="fighead">
         <div class="figtitle">
           <div class="fid">FIG 2.1</div>
-          <h4>Memory prices: contract price vs export unit value</h4>
-          <div class="unit" data-unit>Index, Jan 2025 = 100 · log scale</div>
+          <h4>Memory chip prices, $ per chip</h4>
+          <div class="unit" data-unit>Monthly average, $ per chip</div>
         </div>
         <div class="controls">
           <div class="seg" role="group" aria-label="Frequency" data-ctl="price-freq">
@@ -185,9 +185,8 @@
           </div>
         </div>
       </div>
-      <div class="chips" data-chips aria-label="Series"></div>
       <div class="plot" data-plot></div>
-      <figcaption>Contract price: what large buyers such as PC and server makers pay for one chip, the DDR4 8Gb (DRAMeXchange, as reported by Korean press). Export unit value: the average dollars per gram across all Korean memory chip exports (HS 854232, 3-month sums). Retail, switched off by default: what consumers pay for memory sticks online (Keepa, via the Stanford DAM dataset). Each line is set to 100 in January 2025 so you can compare how fast they rose. The scale is logarithmic, so equal gaps mean equal percentage changes.</figcaption>
+      <figcaption>Bulk prices that large buyers pay per chip: DDR4 8Gb (PC memory) and NAND 128Gb MLC (memory cards and USB drives). DRAMeXchange, via Korean press.</figcaption>
     </figure>
 
     <figure class="chart" id="fig-mom">
@@ -206,6 +205,11 @@
     <details class="data" id="src-table">
       <summary>Contract price sources, one per month</summary>
       <div class="tablewrap"><table><thead><tr><th>Month</th><th class="n">$</th><th class="n">MoM</th><th class="n">3m</th><th>Published</th><th>Source</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+    </details>
+
+    <details class="data" id="nand-src">
+      <summary>NAND price sources, one per month</summary>
+      <div class="tablewrap" id="nand-table"><table><thead><tr><th>Month</th><th class="n">$</th><th class="n">MoM</th><th class="n">3m</th><th>Published</th><th>Source</th><th>Note</th></tr></thead><tbody></tbody></table></div>
     </details>
 
     <figure class="chart" id="fig-hbm">
@@ -232,14 +236,16 @@
         <p>DDR4 8Gb contract: <span class="num-i" data-f="cFirst"></span> (<span data-f="cFirstM"></span>) to <b class="num-i" data-f="cLast"></b> (<span data-f="cLastM"></span>).</p>
         <p>Its 3-month change peaked at <span class="num-i" data-f="m3Peak"></span> in <span data-f="m3PeakM"></span>; it is <b class="num-i" data-f="m3Last"></b> in <span data-f="m3LastM"></span>.</p>
         <p>Export unit-value momentum peaked at <span class="num-i" data-f="uvmPeak"></span> (<span data-f="uvmPeakM"></span>); it is <b class="num-i" data-f="uvmLast"></b> (<span data-f="uvmLastM"></span>).</p>
+        <p>NAND 128Gb contract: <span class="num-i" data-f="nandFirst"></span> (<span data-f="nandFirstM"></span>) to <b class="num-i" data-f="nandLast"></b> (<span data-f="nandLastM"></span>). Its 3-month change peaked at <span class="num-i" data-f="nandPeak"></span> in <span data-f="nandPeakM"></span>; it is <b class="num-i" data-f="nandM3"></b> in <span data-f="nandM3M"></span>.</p>
         <p>HBM proxy: exports to Taiwan were <b class="num-i" data-f="hbmValue"></b> in <span data-f="hbmQ"></span> (<span class="num-i" data-f="hbmYoy"></span> YoY) at <b class="num-i" data-f="hbmUv"></b>/g, against <span class="num-i" data-f="hbmUvPrior"></span>/g a year earlier and <span class="num-i" data-f="hbmChinaUv"></span>/g for China. The composite-chip line to Taiwan went from <span class="num-i" data-f="hbmCompFirst"></span> to <b class="num-i" data-f="hbmCompLast"></b>/g since <span data-f="hbmCompQ"></span>.</p>
       </div>
       <div><h3>Why it matters</h3>
         <p><span class="interp">Interpretation</span>Deceleration from a very high rate is expected late in an upcycle. A turn in prices would show as momentum below zero, and neither series is there yet. Two sources with different methods show the same shape.</p>
+        <p>NAND has slowed more: <span class="num-i" data-f="nandMomPrev"></span> in <span data-f="nandMomPrevM"></span>, <span class="num-i" data-f="nandMomLast"></span> in <span data-f="nandMomLastM"></span>.</p>
         <p>The commodity cycle is slowing, but the HBM proxy is still re-pricing upward, consistent with the shift to HBM4. HBM is SK hynix's higher-margin product, so growth there can offset the commodity slowdown.</p>
       </div>
       <div><h3>Caveat</h3>
-        <p>DDR4 8Gb is a legacy part, a proxy for the commodity market. Contract figures come from press reports of DRAMeXchange data. Retail $/GB is noisy.</p>
+        <p>DDR4 8Gb is a legacy part, a proxy for the commodity market. Contract figures come from press reports of DRAMeXchange data.</p>
         <p>The HBM proxy assumes the Taiwan composite-chip flow is mostly HBM; customs does not label it. It includes Samsung, and $/g mixes price with product generation (HBM3e → HBM4).</p>
       </div>
     </div>
@@ -448,12 +454,16 @@
     <h2>Method &amp; data sources</h2>
     <div class="cols">
       <div>
+        <figure class="netfig">
+          <div id="prov-net"></div>
+          <figcaption>How the price rows were collected. An LLM read each press article and extracted the month's price with its source link and quote. Circle size is the number of rows from that outlet.</figcaption>
+        </figure>
         <h3>Sources</h3>
         <ol>
           <li><b>Korean memory exports, HS 854232.</b> UN Comtrade monthly, <span class="mono" data-f="exFirst"></span> to Sep 2021; Korea Customs Service (KCS) from Oct 2021 to <span class="mono" data-f="exportsLastM"></span>. The two sources were checked against each other over the months where both exist before splicing.</li>
           <li><b>HS10 line detail.</b> KCS, Oct 2021 to <span class="mono" data-f="exportsLastM"></span>. DRAM 8542321010, Flash 8542321030, Composite-chip ICs 8542323000, rest grouped as Other.</li>
           <li><b>DDR4 8Gb 1Gx8 contract price.</b> DRAMeXchange/TrendForce monthly fixed price as reported by Korean press (Asia Economy, Newsis, Financial News, ZDNet Korea and others), <span class="mono" data-f="cFirstM"></span> to <span class="mono" data-f="cLastM"></span>. One source URL and quote per month (table under Fig 2.2). Dec 2024 not found.</li>
-          <li><b>Retail memory $/GB.</b> Keepa DDR4 and DDR5 series from the Stanford DAM memory-price dataset, retrieved 2026-11-08. Secondary, retail only.</li>
+          <li><b>NAND 128Gb 16Gx8 MLC contract price.</b> DRAMeXchange monthly fixed price as reported by the same Korean and Taiwanese press, <span class="mono" data-f="nandFirstM"></span> to <span class="mono" data-f="nandLastM"></span>. One source URL and quote per month (table under Fig 2.2). Dec 2024 and Oct 2025 not found.</li>
           <li><b>SK hynix financials.</b> Quarterly revenue and operating profit, K-IFRS consolidated, stockanalysis.com, retrieved 2026-11-08; <span class="mono" data-f="ncQ"></span> from the company's preliminary release (<span class="mono" data-f="release"></span>).</li>
           <li><b>USD/KRW.</b> Yahoo Finance month-end closes, used to convert monthly exports to KRW for the forecast.</li>
           <li><b>Correlations.</b> <span data-f="corrFirst"></span>–<span data-f="corrLast"></span>, SK hynix K-IFRS revenue and operating margin against Korean HS 854232 exports in KRW. Log growth rates, not levels, since levels of two trending series correlate trivially. Computed in <code>src/site/export_site_data.py</code>.</li>
@@ -479,7 +489,7 @@
           <li>SK hynix's China fabs ship from China and are not in Korean customs data.</li>
           <li><span data-f="ncQ"></span> revenue is preliminary. The two financial files differ by <span class="mono" data-f="revDiff"></span> on that quarter; the site uses the company figure in <code>data/financials/skhynix_quarterly.csv</code>, as the forecast does.</li>
           <li><b>Satellite imagery at 10 m</b> shows the building, not tools or wafer output. Index-based metrics (NDVI, NDBI, brightness) were too noisy and are not shown or claimed.</li>
-          <li><b>LLM use.</b> Used only to extract dated facts (prices, quotes, construction milestones) from source documents. Each extracted row links to its source and quote. No LLM-generated numbers.</li>
+          <li><b>LLM use.</b> An LLM read the press articles and extracted the dated facts (prices, quotes, construction milestones). Each row keeps its source link and quote, and no number is generated by the LLM. The NAND rows have not been checked by hand yet.</li>
         </ul>
       </div>
     </div>
